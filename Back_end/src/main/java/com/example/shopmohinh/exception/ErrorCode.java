@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
-    UNCATEGORIZED_EXCEPTION(9999,"Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+//    UNCATEGORIZED_EXCEPTION(9999,"Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
 
     INVALID_KEY(1001,"Invalid message key",HttpStatus.UNAUTHORIZED),
 
@@ -23,6 +23,8 @@ public enum ErrorCode {
     PASSWORD_INVALID(1006,"password must be at least 5 characters",HttpStatus.BAD_REQUEST),
 
     UNAUTHORIZED(1007,"you do not have permission",HttpStatus.FORBIDDEN),
+
+    TOKEN_ISVALID(1008,"Token isvalid",HttpStatus.BAD_REQUEST),
 
     ;
 

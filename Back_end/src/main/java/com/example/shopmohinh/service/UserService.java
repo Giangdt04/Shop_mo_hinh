@@ -32,15 +32,15 @@ import java.util.Optional;
 //Thay thế cho @Autowired
 //@RequiredArgsConstructor sẽ tự động tạo contructor của những method đc khai báo là final
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserService {
 
-     UserRepository userRepository;
+    UserRepository userRepository;
 
-     RoleRepository roleRepository;
+    RoleRepository roleRepository;
 
-     UserMapper userMapper;
+    UserMapper userMapper;
 
     public UserResponse createdUser(UserCreationRequest request) {
 
@@ -51,7 +51,7 @@ public class UserService {
 //                .name("giang")
 //                .build();
 
-        if(userRepository.existsByCode(request.getCode()))
+        if (userRepository.existsByCode(request.getCode()))
 //            throw new RuntimeException("User existed.");
             throw new AppException(ErrorCode.USER_EXISTED);
 
@@ -70,12 +70,12 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-//    @PreAuthorize("hasAuthority('SHOW_USER')")+
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('SCOPE_SHOW_USER')")
+//    @PreAuthorize("hasRole('ADMIN')")
     //kiểm tra trc khi vào method nếu thỏa dk thì ms đc chạy method
     public List<UserResponse> getUsers() {
         log.info("In method getUser");
-        return userRepository.findAll().stream()
+        return userRepository.getAll().stream()
                 .map(userMapper::toUserResponse).toList();
     }
 
@@ -85,15 +85,15 @@ public class UserService {
 
     //kiểm tra username đang đăng nhập có phải là đúng user response ko
     @PostAuthorize("returnObject.username == authentication.name")
-    public UserResponse findUser(Long id) {
+    public UserResponse findUser(String code) {
         log.info("In method get user by id");
-        return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(
+        return userMapper.toUserResponse(userRepository.findByCode(code).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED)
         ));
     }
 
     // lấy thông tin người đang đăng nhập
-    public UserResponse getMyInfo(){
+    public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
 
@@ -101,11 +101,11 @@ public class UserService {
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);
-
     }
 
-    public UserResponse userUpdate(Long userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).
+//    @PreAuthorize("hasAuthority('UPDATE_USER')")
+    public UserResponse userUpdate(String code, UserUpdateRequest request) {
+        User user = userRepository.findByCode(code).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
@@ -127,8 +127,13 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    //Xóa cứng
-    public void deleteUser(Long userId){
-        userRepository.deleteById(userId);
+
+    public UserResponse deleteUser(String code){
+        User user = userRepository.findByCode(code).
+                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        user.setDeleted(false);
+
+        return userMapper.toUserResponse(userRepository.save(user));
     }
 }

@@ -3,19 +3,12 @@ package com.example.shopmohinh.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDateTime;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+//Access ModiFier
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CategoryRequest {
-
-    String code;
-
-    String name;
-
-    String status;
-
+public class RefeshRequest {
+    String token;
 }

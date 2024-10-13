@@ -51,8 +51,6 @@ public class PermissionService {
     public PermissionResponse create(PermissionRequest request){
         Permission permission = permissionMapper.toPermission(request);
 
-        permission = permissionRepository.save(permission);
-
         LocalDateTime now = LocalDateTime.now();
 
         permission.setCreatedDate(now);
@@ -61,17 +59,23 @@ public class PermissionService {
 
         permission.setCreatedBy(String.valueOf(id));
 
+        permission = permissionRepository.save(permission);
+
         return permissionMapper.toPermissionResponse(permission);
     }
 
     public List<PermissionResponse> getPermission(){
 
-        var permission = permissionRepository.findAll();
-
-        return permission.stream().map(permissionMapper::toPermissionResponse).toList();
+        return permissionRepository.getAll().stream()
+                .map(permissionMapper::toPermissionResponse).toList();
     }
 
-    public void delete(Long id){
-        permissionRepository.deleteById(id);
+    public PermissionResponse delete(String code){
+        Permission permission = permissionRepository.findByCode(code).
+                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        permission.setDeleted(false);
+
+        return permissionMapper.toPermissionResponse(permissionRepository.save(permission));
     }
 }

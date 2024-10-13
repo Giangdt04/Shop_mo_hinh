@@ -22,4 +22,5 @@ public class UserUpdateRequest {
     private LocalDateTime updatedDate;
     private String updatedBy;
     private List<Long> roles;
+    private Boolean deleted;
 }

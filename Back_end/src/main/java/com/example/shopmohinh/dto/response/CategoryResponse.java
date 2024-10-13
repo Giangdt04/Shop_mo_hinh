@@ -3,6 +3,8 @@ package com.example.shopmohinh.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,4 +18,14 @@ public class CategoryResponse {
     String name;
 
     String status;
+
+    LocalDateTime createdDate;
+
+    LocalDateTime updatedDate;
+
+    String createdBy;
+
+    String updatedBy;
+
+    Boolean deleted;
 }

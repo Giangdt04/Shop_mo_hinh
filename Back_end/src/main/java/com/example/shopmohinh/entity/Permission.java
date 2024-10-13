@@ -17,6 +17,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Permission extends AbtractEntity{
+    @Column(name = "CODE")
+    private String code;
+    @Column(name = "STATUS")
+    private String status;
     @Column(name = "NAME")
     String name;
 

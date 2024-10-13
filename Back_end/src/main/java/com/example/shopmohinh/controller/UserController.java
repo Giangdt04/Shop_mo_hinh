@@ -21,31 +21,28 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    //thêm @Valid để create chạy validate
-    @PostMapping("/createUser")
-    public ApiResponse<UserResponse> createUser(@RequestBody @Valid UserCreationRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.createdUser(request))
-                .build();
-    }
-
-    @GetMapping("/showUser")
+    @GetMapping()
     public ApiResponse<List<UserResponse>>getUsers() {
 //      SecurityContextHolder chứa user đang đăng nhập(Request)
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         log.info("username: {}", authentication.getName());
-        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
+//       authentication.getAuthorities() trả về một tập hợp các quyền của người dùng
+        authentication.getAuthorities()
+
+//      forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority())) duyệt qua từng quyền và ghi log tên của từng quyền đó
+                .forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
 
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getUsers())
                 .build();
     }
 
-    @GetMapping("/{userId}")
-    public ApiResponse<UserResponse> findUser(@PathVariable("userId") Long userId) {
+    @GetMapping("/{code}")
+    public ApiResponse<UserResponse> findUser(@PathVariable("code") String code) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.findUser(userId))
+                .result(userService.findUser(code))
                 .build();
     }
 
@@ -57,20 +54,19 @@ public class UserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
-    public ApiResponse<UserResponse> updateUser(@PathVariable("userId") Long userId,
+    @PutMapping("/{code}")
+    public ApiResponse<UserResponse> updateUser(@PathVariable("code") String code,
                            @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
-                .result(userService.userUpdate(userId,request))
+                .result(userService.userUpdate(code,request))
                 .build();
 
     }
 
-    @DeleteMapping("/{userId}")
-    ApiResponse<String> deleteUser(@PathVariable("userId") Long userId){
-        userService.deleteUser(userId);
-        return ApiResponse.<String>builder()
-                .result("User has been deleted")
+    @DeleteMapping("/{code}")
+    public ApiResponse<UserResponse> deleteUser(@PathVariable("code") String code){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.deleteUser(code))
                 .build();
     }
 }

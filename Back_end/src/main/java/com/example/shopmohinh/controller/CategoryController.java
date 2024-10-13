@@ -44,7 +44,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponse<CategoryResponse> updateUser(@PathVariable("id") Long id,
+    public ApiResponse<CategoryResponse> updateCategory(@PathVariable("id") Long id,
                                                 @RequestBody CategoryRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.update(id,request))
@@ -64,16 +64,18 @@ public class CategoryController {
                 .build();
     }
     @GetMapping("/find")
-    public ApiResponse<List<CategoryResponse>> findByAll(@RequestParam(value = "name",required = false) String name,@RequestParam(value = "status",required = false) Boolean status,@RequestParam Integer page){
-        PageRequest pageRequest=PageRequest.of(page-1,3);
+    public ApiResponse<List<CategoryResponse>> findByAll(@RequestParam(value = "name",required = false) String name,@RequestParam(value = "status",required = false) String status,@RequestParam Integer page){
+        PageRequest pageRequest = PageRequest.of(page-1,3);
         return ApiResponse.<List<CategoryResponse>>builder()
                 .result(categoryService.findByAll(name,status,pageRequest))
                 .build();
     }
 
     @GetMapping("/findTotalPage")
-    public ApiResponse<Double> findByAllTotalPage(@RequestParam(value = "name",required = false) String name,@RequestParam(value = "status",required = false) Boolean status){
-        return ApiResponse.<Double>builder()
+    public ApiResponse<List<CategoryResponse>> findByAllTotalPage(@RequestParam(value = "name",required = false) String name,@RequestParam(value = "status",required = false) String status){
+        return ApiResponse.<List<CategoryResponse>>builder()
                 .result(categoryService.findAllTotalPage(name,status))
-                .build();    }
+                .build();
+    }
+
 }

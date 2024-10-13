@@ -2,6 +2,8 @@ package com.example.shopmohinh.controller;
 
 import com.example.shopmohinh.dto.request.AuthenticationRequest;
 import com.example.shopmohinh.dto.request.IntrospectRequest;
+import com.example.shopmohinh.dto.request.LogoutRequest;
+import com.example.shopmohinh.dto.request.RefeshRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.AuthenticationResponse;
 import com.example.shopmohinh.dto.response.IntrospectResponse;
@@ -40,6 +42,23 @@ public class AuthenticationController {
     ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest request) throws ParseException, JOSEException {
         var result = authenticationService.introspect(request);
         return ApiResponse.<IntrospectResponse>builder()
+                .result(result)
+                .build();
+
+    }
+
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+                .build();
+
+    }
+
+    @PostMapping("/refresh")
+    ApiResponse<AuthenticationResponse> authenticate(@RequestBody RefeshRequest request) throws ParseException, JOSEException {
+        var result = authenticationService.refreshToken(request);
+        return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
 

@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PermissionRequest {
+    String code;
+
     String name;
+
+    String status;
 
     LocalDateTime createdDate;
 
@@ -20,5 +24,4 @@ public class PermissionRequest {
     String createdBy;
 
     String updatedBy;
-
 }

@@ -20,6 +20,8 @@ import java.util.Set;
 public class User extends AbtractEntity {
     @Column(name = "CODE")
     private String code;
+    @Column(name = "STATUS")
+    private String status;
     @Column(name = "NAME")
     private String name;
     @Column(name = "SEX")
@@ -30,8 +32,6 @@ public class User extends AbtractEntity {
     private String phone;
     @Column(name = "EMAIL")
     private String email;
-    @Column(name = "STATUS")
-    private String status;
     @Column(name = "DATE")
     private LocalDate date;
     @Column(name = "USERNAME")
@@ -39,6 +39,6 @@ public class User extends AbtractEntity {
     @Column(name = "PASSWORD")
     private String pass;
 
-    @ManyToMany()
+    @ManyToMany
     private Set<Role> roles;
 }

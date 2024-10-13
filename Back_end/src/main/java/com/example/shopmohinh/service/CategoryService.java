@@ -61,10 +61,17 @@ public class CategoryService {
 
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
+
     public CategoryResponse create(CategoryRequest request){
+
         Category category = categoryMapper.toCategory(request);
 
-        category = categoryRepository.save(category);
+        if(categoryRepository.getTop1()==null){
+            category.setCode("Cate1");
+        }else{
+            String code = categoryRepository.getTop1().getCode();
+            category.setCode(code.substring(0,4)+((Integer.parseInt(code.substring(4)))+1));
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -73,6 +80,8 @@ public class CategoryService {
         Long id = getMyInfo().getId();
 
         category.setCreatedBy(String.valueOf(id));
+
+        category = categoryRepository.save(category);
 
         return categoryMapper.toCategoryResponse(category);
     }
@@ -97,6 +106,7 @@ public class CategoryService {
 
         return categoryMapper.toCategoryResponse(categoryRepository.save(category));
     }
+
     public List<CategoryResponse> getAllPaging(Pageable pageable) {
 
         var category = categoryRepository.getAllPaging(pageable);
@@ -114,15 +124,16 @@ public class CategoryService {
         ));
     }
 
-    public List<CategoryResponse> findByAll(String name, Boolean status, Pageable pageable) {
+    public List<CategoryResponse> findByAll(String name, String status, Pageable pageable) {
 
         var category = categoryRepository.findByAll(name,status,pageable);
 
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
 
-    public Double findAllTotalPage(String name, Boolean status) {
-        int totalPage=categoryRepository.findAllTotalPage(name,status).size();
-        return Math.ceil(totalPage/3.0);
+    public List<CategoryResponse> findAllTotalPage(String name, String status) {
+        var category = categoryRepository.findAllTotalPage(name,status);
+        return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
+
 }

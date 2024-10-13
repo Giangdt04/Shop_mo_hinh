@@ -1,5 +1,6 @@
 package com.example.shopmohinh.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,7 +24,10 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"users/createUser", "/auth/token", "/auth/introspect"};
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
+
+    @Autowired
+    private CustomJwtDecoder customJwtDecoder;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -40,24 +44,34 @@ public class SecurityConfig {
 
 
         //Xét quyền của user qua token
+//       httpSecurity.oauth2ResourceServer(oauth2 ->...) chấp nhận và xác thực quyền qua token OAuth2
         httpSecurity.oauth2ResourceServer(oauth2 ->
+
+//              oauth2.jwt(jwtConfigurer -> ...) chỉ định rằng máy chủ tài nguyên sẽ sử dụng JWT để xác thực token
                 oauth2.jwt(jwtConfigurer ->
 
-                        jwtConfigurer.decoder(jwtDecoder())
+//              jwtConfigurer.decoder(jwtDecoder()) tự thiết lập 1 bộ giải mã token tên là jwtDecoder(),
+//              dùng để giải mã token
+                        jwtConfigurer.decoder(customJwtDecoder)
+
+//                      Sử dụng thiết lập đã tạo để chuyển đổi đối tượng trong JWT thành 1 đối tượng xác thực trong spring security
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter())
-                        .and().authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+                        .and()
+
+//                      Sử dụng thiết lập đã tạo để đưa ra phản hồi mong muốn khi yêu cầu xác thực thất bại
+                                .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 )
         );
 
         return httpSecurity.build();
     }
 
+//  Tự tạo 1 bộ xác thức JWT cho phép chuyển đổi đối tượng trong JWT thành 1 đối tượng xác thực trong spring security
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
         //Chuyển từ SCOPE_ADMIN -> ROLE_ADMIN
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
 
@@ -66,16 +80,7 @@ public class SecurityConfig {
         return jwtAuthenticationConverter;
     }
 
-    //chuyền signerKey của Jwt vào SecretKeySpec(xem ở /service/AuthenticationService)
-    //Get quyền của tài khoản để xét qua token
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec("jyl4q4MPE5mpdiRnlDFpjWb3Vowfj52sYT9YHRSOsQlLIhznImeyGZZFUnz8ghEl".getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-    }
+
 
     //vì BCryptPasswordEncoder được sử dụng nhiều nên tạo 1 bean để không phải gọi lại nhiều lần
     @Bean

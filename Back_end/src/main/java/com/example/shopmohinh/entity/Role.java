@@ -17,6 +17,10 @@ import java.util.Set;
 //Access ModiFier
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Role extends AbtractEntity{
+    @Column(name = "CODE")
+    private String code;
+    @Column(name = "STATUS")
+    private String status;
     @Column(name = "NAME")
     String name;
 

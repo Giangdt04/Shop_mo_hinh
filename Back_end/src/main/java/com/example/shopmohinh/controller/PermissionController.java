@@ -3,6 +3,7 @@ package com.example.shopmohinh.controller;
 import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.PermissionResponse;
+import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.service.PermissionService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -35,9 +36,10 @@ public class PermissionController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable("id") Long id){
-        permissionService.delete(id);
-        return ApiResponse.<Void>builder().build();
+    @DeleteMapping("/{code}")
+    public ApiResponse<PermissionResponse> delete(@PathVariable("code") String code){
+        return ApiResponse.<PermissionResponse>builder()
+                .result(permissionService.delete(code))
+                .build();
     }
 }

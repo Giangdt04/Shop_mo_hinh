@@ -34,14 +34,21 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     @Query("""
             select c from Category c where
             (c.name is null or c.name like %:name%) or
-            (c.status is null or c.status=:status) order by c.id desc
+            (c.status is null or c.status like %:status%) order by c.id desc
             """)
-    List<Category> findByAll(String name,Boolean status,Pageable pageable);
+    List<Category> findByAll(String name,String status,Pageable pageable);
 
     @Query("""
             select c from Category c where
             (c.name is null or c.name like %:name%) or
-            (c.status is null or c.status=:status)
+            (c.status is null or c.status like %:status%)
             """)
-    List<Category> findAllTotalPage(String name,Boolean status);
+    List<Category> findAllTotalPage(String name,String status);
+
+
+    @Query("""
+            select c from Category c where c.name=:name
+            """)
+    Category getCategoryByName(String name);
+
 }

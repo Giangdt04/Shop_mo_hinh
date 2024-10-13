@@ -13,6 +13,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import java.io.IOException;
 
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+//  Thiết lập 1 điểm xác thực tùy chỉnh, Điều này cho phép tùy chỉnh cách phản hồi khi thất bại
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {

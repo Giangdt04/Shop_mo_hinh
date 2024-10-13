@@ -12,9 +12,11 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RoleResponse {
-
+    String code;
 
     String name;
+
+    String status;
 
     Set<PermissionResponse> permissions;
 
@@ -25,5 +27,7 @@ public class RoleResponse {
     String createdBy;
 
     String updatedBy;
+
+    Boolean deleted;
 
 }

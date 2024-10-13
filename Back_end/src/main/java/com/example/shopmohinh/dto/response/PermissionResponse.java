@@ -11,7 +11,11 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PermissionResponse {
+    String code;
+
     String name;
+
+    String status;
 
     LocalDateTime createdDate;
 
@@ -20,5 +24,7 @@ public class PermissionResponse {
     String createdBy;
 
     String updatedBy;
+
+    Boolean deleted;
 
 }

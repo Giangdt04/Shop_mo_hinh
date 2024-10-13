@@ -44,6 +44,8 @@ public class UserResponse {
 
      String username;
 
+     Boolean deleted;
+
      Set<RoleResponse> roles;
 
 }
