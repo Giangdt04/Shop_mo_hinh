@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 //Thay thế cho @Autowired
@@ -54,18 +55,15 @@ public class ProductService {
     }
 
     public ProductResponse create(ProductRequest request){
-        Product productAdd = new Product();
-
-        if(productRepository.getTop1()==null){
-            productAdd.setCode("SP1");
-        }else{
-            String code = productRepository.getTop1().getCode();
-            productAdd.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
-        }
 
         Product product = productMapper.toProduct(request);
 
-        product = productRepository.save(product);
+        if(productRepository.getTop1()==null){
+            product.setCode("SP1");
+        }else{
+            String code = productRepository.getTop1().getCode();
+            product.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -75,7 +73,7 @@ public class ProductService {
 
         product.setCreatedBy(String.valueOf(id));
 
-        return productMapper.toProductResponse(product);
+        return productMapper.toProductResponse(productRepository.save(product));
     }
 
     public List<ProductResponse> getProduct(){
@@ -85,12 +83,20 @@ public class ProductService {
         return product.stream().map(productMapper::toProductResponse).toList();
     }
 
-    public void delete(Long id){
-        productRepository.deleteById(id);
+    public ProductResponse delete(String code){
+        Product product = productRepository.findByCode(code)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        if(product != null){
+            product.setDeleted(false);
+        }
+
+        return productMapper.toProductResponse(product);
+
     }
 
-    public ProductResponse update(Long Id, ProductRequest request) {
-        Product product = productRepository.findById(Id).
+    public ProductResponse update(String code, ProductRequest request) {
+        Product product = productRepository.findByCode(code).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         productMapper.updateProduct(product, request);

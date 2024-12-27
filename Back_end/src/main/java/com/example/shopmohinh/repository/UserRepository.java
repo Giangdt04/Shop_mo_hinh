@@ -20,4 +20,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> getAll();
 
     Optional<User> findByCode(String code);
+
+    @Query(value = """
+            SELECT TOP 1 * FROM user ORDER BY id DESC
+            """, nativeQuery = true)
+    User getTop1();
 }

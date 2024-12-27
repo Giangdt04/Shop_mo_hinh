@@ -86,12 +86,17 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(category);
     }
 
-    public void delete(Long id){
-        categoryRepository.deleteById(id);
+    public CategoryResponse delete(String code){
+        Category category = categoryRepository.findByCode(code).
+                orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(category != null){
+            category.setDeleted(false);
+        }
+        return categoryMapper.toCategoryResponse(category);
     }
 
-    public CategoryResponse update(Long Id, CategoryRequest request) {
-        Category category = categoryRepository.findById(Id).
+    public CategoryResponse update(String code, CategoryRequest request) {
+        Category category = categoryRepository.findByCode(code).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         categoryMapper.updateCategory(category, request);

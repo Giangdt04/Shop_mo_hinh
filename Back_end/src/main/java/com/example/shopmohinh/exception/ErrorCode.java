@@ -24,7 +24,11 @@ public enum ErrorCode {
 
     UNAUTHORIZED(1007,"you do not have permission",HttpStatus.FORBIDDEN),
 
-    TOKEN_ISVALID(1008,"Token isvalid",HttpStatus.BAD_REQUEST),
+    TOKEN_INVALID(1008,"Token invalid",HttpStatus.BAD_REQUEST),
+
+    ROLE_NOT_FOUND(1009,"Role not found",HttpStatus.NOT_FOUND),
+
+    SIZE_NOT_EXISTED(1010,"Size not existed",HttpStatus.NOT_FOUND),
 
     ;
 

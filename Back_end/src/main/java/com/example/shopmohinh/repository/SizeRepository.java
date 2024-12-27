@@ -1,18 +1,22 @@
 package com.example.shopmohinh.repository;
 
 import com.example.shopmohinh.entity.Product;
+import com.example.shopmohinh.entity.SizeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product,Long> {
+public interface SizeRepository extends JpaRepository<SizeEntity, Long> {
+    @Transactional
     @Query(value = """
-            select * from product order by product.id desc limit 1
+            select * from size order by size.id desc limit 1
             """,nativeQuery = true)
-    Product getTop1();
+    SizeEntity getTop1();
 
-    Optional<Product> findByCode(String code);
+    @Transactional
+    Optional<SizeEntity> findByCode(String code);
 }

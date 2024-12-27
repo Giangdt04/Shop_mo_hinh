@@ -21,31 +21,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping()
-    public ApiResponse<List<UserResponse>>getUsers() {
-//      SecurityContextHolder chứa user đang đăng nhập(Request)
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        log.info("username: {}", authentication.getName());
-
-//       authentication.getAuthorities() trả về một tập hợp các quyền của người dùng
-        authentication.getAuthorities()
-
-//      forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority())) duyệt qua từng quyền và ghi log tên của từng quyền đó
-                .forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
-
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
-                .build();
-    }
-
-    @GetMapping("/{code}")
-    public ApiResponse<UserResponse> findUser(@PathVariable("code") String code) {
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.findUser(code))
-                .build();
-    }
-
     //chuyền vào token để lấy thông tin bản thân
     @GetMapping("/myInfo")
     public ApiResponse<UserResponse> getMyInfo(){
@@ -55,7 +30,7 @@ public class UserController {
     }
 
     @PutMapping("/{code}")
-    public ApiResponse<UserResponse> updateUser(@PathVariable("code") String code,
+    public ApiResponse<UserResponse> updateMyAcc(@PathVariable("code") String code,
                            @RequestBody UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.userUpdate(code,request))
@@ -64,9 +39,16 @@ public class UserController {
     }
 
     @DeleteMapping("/{code}")
-    public ApiResponse<UserResponse> deleteUser(@PathVariable("code") String code){
+    public ApiResponse<UserResponse> deleteMyAcc(@PathVariable("code") String code){
         return ApiResponse.<UserResponse>builder()
                 .result(userService.deleteUser(code))
+                .build();
+    }
+
+    @PostMapping()
+    public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.createdUser(request))
                 .build();
     }
 }

@@ -50,5 +50,5 @@ public class UserCreationRequest {
 
     String createdBy;
 
-    private List<Long> roles;
+    private List<String> roles;
 }

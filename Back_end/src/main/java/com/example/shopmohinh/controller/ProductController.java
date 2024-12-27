@@ -34,17 +34,17 @@ public class ProductController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable("id") Long id){
-        productService.delete(id);
-        return ApiResponse.<Void>builder().build();
+    @DeleteMapping("/{code}")
+    public ApiResponse<ProductResponse> delete(@PathVariable("code") String code){
+        productService.delete(code);
+        return ApiResponse.<ProductResponse>builder().build();
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<ProductResponse> updateUser(@PathVariable("id") Long id,
+    @PutMapping("/{code}")
+    public ApiResponse<ProductResponse> updateUser(@PathVariable("code") String code,
                                                 @RequestBody ProductRequest request) {
         return ApiResponse.<ProductResponse>builder()
-                .result(productService.update(id,request))
+                .result(productService.update(code,request))
                 .build();
 
     }

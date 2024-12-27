@@ -37,17 +37,17 @@ public class CategoryController {
                 .build();
     }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(@PathVariable("id") Long id){
-        categoryService.delete(id);
-        return ApiResponse.<Void>builder().build();
+    @DeleteMapping("/{code}")
+    public ApiResponse<CategoryResponse> delete(@PathVariable("code") String code){
+        categoryService.delete(code);
+        return ApiResponse.<CategoryResponse>builder().build();
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<CategoryResponse> updateCategory(@PathVariable("id") Long id,
+    @PutMapping("/{code}")
+    public ApiResponse<CategoryResponse> updateCategory(@PathVariable("code") String code,
                                                 @RequestBody CategoryRequest request) {
         return ApiResponse.<CategoryResponse>builder()
-                .result(categoryService.update(id,request))
+                .result(categoryService.update(code,request))
                 .build();
     }
     @GetMapping("/{page}")
