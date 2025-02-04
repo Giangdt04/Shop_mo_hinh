@@ -104,7 +104,6 @@ public class AuthenticationService {
         } catch (AppException e) {
             log.info("Token already expired");
         }
-
     }
 
     public AuthenticationResponse refreshToken(RefeshRequest request) throws ParseException, JOSEException {

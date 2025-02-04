@@ -30,6 +30,8 @@ public enum ErrorCode {
 
     SIZE_NOT_EXISTED(1010,"Size not existed",HttpStatus.NOT_FOUND),
 
+    MATERIAL_NOT_EXISTED(404_001,"Material not existed",HttpStatus.NOT_FOUND),
+
     ;
 
     private int code;

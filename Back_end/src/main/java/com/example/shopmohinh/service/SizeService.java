@@ -58,7 +58,7 @@ public class SizeService{
         SizeEntity sizeEntity = sizeMapper.toSize(request);
 
         if(sizeRepository.getTop1()==null){
-            sizeEntity.setCode("SP1");
+            sizeEntity.setCode("SZ1");
         }else{
             String code = sizeRepository.getTop1().getCode();
             sizeEntity.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
