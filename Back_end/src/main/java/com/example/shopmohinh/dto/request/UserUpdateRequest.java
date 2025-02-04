@@ -1,6 +1,9 @@
 package com.example.shopmohinh.dto.request;
 
+import io.micrometer.common.lang.Nullable;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,4 +26,9 @@ public class UserUpdateRequest {
     private String updatedBy;
     private List<Long> roles;
     private Boolean deleted;
+
+    MultipartFile avatarFile;
+
+    @Pattern(regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$", message = "AVATAR_URL_INVALID")
+    String avatar;
 }

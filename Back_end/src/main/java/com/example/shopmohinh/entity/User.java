@@ -38,6 +38,8 @@ public class User extends AbtractEntity {
     private String username;
     @Column(name = "PASSWORD")
     private String pass;
+    @Column(name = "AVATAR")
+    private String avatar;
 
     @ManyToMany
     private Set<Role> roles;

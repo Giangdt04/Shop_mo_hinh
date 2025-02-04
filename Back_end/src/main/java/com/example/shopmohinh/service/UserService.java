@@ -1,5 +1,7 @@
 package com.example.shopmohinh.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.UserResponse;
@@ -23,12 +25,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 //Thay thế cho @Autowired
@@ -44,29 +45,44 @@ public class UserService {
 
     UserMapper userMapper;
 
+    Cloudinary cloudinary;
+
     public UserResponse createdUser(UserCreationRequest request) {
 
         // Kiểm tra xem tài khoản với username "admin" đã tồn tại chưa
-        if (request.getUsername().equals("admin") && userRepository.findByUsername("admin").isPresent()) {
-            throw new AppException(ErrorCode.USER_EXISTED); // Hoặc một mã lỗi phù hợp khác
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        if (userRepository.existsByCode(request.getCode()))
-            throw new AppException(ErrorCode.USER_EXISTED);
-
         User user = userMapper.toUser(request);
+        user.setCode(this.generateCode());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPass(passwordEncoder.encode(request.getPass()));
         LocalDateTime now = LocalDateTime.now();
         user.setCreatedDate(now);
         Long id = getMyInfo().getId();
         user.setCreatedBy(String.valueOf(id));
+        user.setAvatar(uploadAvatar(request.getAvatarFile()));
 
         // Lấy role từ request
         Set<Role> roles = getRolesFromRequest(request.getRoles());
         user.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    private String generateCode() {
+        String lastCode = Optional.ofNullable(userRepository.getTop1())
+                .map(User::getCode)
+                .orElse("USER000");
+
+        if (lastCode.length() > 6) {
+            String prefix = lastCode.substring(0, 6);
+            int number = Integer.parseInt(lastCode.substring(6));
+            return prefix + (number + 1);
+        } else {
+            return "USER001";
+        }
     }
 
     private Set<Role> getRolesFromRequest(List<String> roleCodes) {
@@ -93,7 +109,7 @@ public class UserService {
         return roles;
     }
 
-    @PreAuthorize("hasAuthority('SCOPE_SHOW_USER')")
+    @PreAuthorize("hasAuthority('SHOW_USER')")
 //    @PreAuthorize("hasRole('ADMIN')")
     //kiểm tra trc khi vào method nếu thỏa dk thì ms đc chạy method
     public List<UserResponse> getUsers() {
@@ -142,6 +158,10 @@ public class UserService {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPass(passwordEncoder.encode(request.getPass()));
 
+        if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
+            user.setAvatar(uploadAvatar(request.getAvatarFile()));
+        }
+
         var roles = roleRepository.findAllById(request.getRoles());
 
         user.setRoles(new HashSet<>(roles));
@@ -158,5 +178,34 @@ public class UserService {
         user.setDeleted(false);
 
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    private String uploadAvatar(MultipartFile avatarFile) {
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+                return uploadFile(avatarFile);
+            } catch (IOException e) {
+                log.error("Error uploading file: {}", e.getMessage());
+                throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
+            }
+        }
+        log.warn("No avatar file provided, using default avatar URL.");
+        return "https://asset.cloudinary.com/dvxobkvcx/ec27e05c5476c3c95ce0d4cc48841456";
+    }
+
+    public String uploadFile(MultipartFile file) throws IOException {
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new AppException(ErrorCode.INVALID_FILE_TYPE);
+        }
+
+        try {
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto"));
+            return uploadResult.get("url").toString();
+        } catch (IOException e) {
+            log.error("Upload file failed: {}", e.getMessage());
+            throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
+        }
     }
 }
