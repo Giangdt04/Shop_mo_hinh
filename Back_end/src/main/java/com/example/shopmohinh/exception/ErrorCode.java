@@ -32,6 +32,13 @@ public enum ErrorCode {
 
     MATERIAL_NOT_EXISTED(404_001,"Material not existed",HttpStatus.NOT_FOUND),
 
+    AVATAR_URL_INVALID(400_001,"Avatar invalid",HttpStatus.BAD_REQUEST),
+
+    INVALID_FILE_TYPE(400_002,"file invalid",HttpStatus.BAD_REQUEST),
+
+    FILE_UPLOAD_FAILED(400_003,"upload fail",HttpStatus.BAD_REQUEST),
+
+
     ;
 
     private int code;

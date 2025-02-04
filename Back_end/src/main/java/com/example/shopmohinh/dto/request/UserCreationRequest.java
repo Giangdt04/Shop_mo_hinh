@@ -1,11 +1,12 @@
 package com.example.shopmohinh.dto.request;
 
-import jakarta.persistence.Column;
-import jakarta.validation.constraints.Email;
+import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,10 +21,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreationRequest {
 
-    @NotEmpty(message = "Code cannot be empty")
     String code;
 
-    @NotEmpty(message = "Name cannot be empty")
+    @NotNull(message = "Name cannot be empty")
     String name;
 
     Boolean sex;
@@ -32,7 +32,7 @@ public class UserCreationRequest {
 
     String phone;
 
-    @NotEmpty(message = "Email cannot be empty")
+    @NotNull(message = "Email cannot be empty")
     String email;
 
     String status;
@@ -49,6 +49,11 @@ public class UserCreationRequest {
     LocalDateTime createdDate;
 
     String createdBy;
+
+    MultipartFile avatarFile;
+
+    @Pattern(regexp = "^(https?|ftp)://[^\s/$.?#].[^\s]*$", message = "AVATAR_URL_INVALID")
+    String avatar;
 
     private List<String> roles;
 }

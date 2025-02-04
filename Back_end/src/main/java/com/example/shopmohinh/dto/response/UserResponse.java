@@ -18,6 +18,8 @@ import java.util.Set;
 public class UserResponse {
      Long id;
 
+     String code;
+
      LocalDateTime createdDate;
 
      LocalDateTime updatedDate;
@@ -25,8 +27,6 @@ public class UserResponse {
      String createdBy;
 
      String updatedBy;
-
-     String code;
 
      String name;
 
@@ -45,6 +45,8 @@ public class UserResponse {
      String username;
 
      Boolean deleted;
+
+     String avatar;
 
      Set<RoleResponse> roles;
 

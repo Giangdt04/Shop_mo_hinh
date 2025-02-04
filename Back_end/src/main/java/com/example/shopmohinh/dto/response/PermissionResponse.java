@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PermissionResponse {
+    Long id;
+
     String code;
 
     String name;

@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByCode(String code);
 
     @Query(value = """
-            SELECT TOP 1 * FROM user ORDER BY id DESC
+            select * from user order by user.id desc limit 1
             """, nativeQuery = true)
     User getTop1();
 }
