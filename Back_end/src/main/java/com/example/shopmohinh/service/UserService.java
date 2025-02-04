@@ -51,14 +51,7 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED); // Hoặc một mã lỗi phù hợp khác
         }
 
-//        Cách sử dụng @Builder
-//        UserCreationRequest request1 = UserCreationRequest.builder()
-//                .code("123")
-//                .name("giang")
-//                .build();
-
         if (userRepository.existsByCode(request.getCode()))
-//            throw new RuntimeException("User existed.");
             throw new AppException(ErrorCode.USER_EXISTED);
 
         User user = userMapper.toUser(request);

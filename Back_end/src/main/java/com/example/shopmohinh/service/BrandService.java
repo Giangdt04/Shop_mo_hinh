@@ -54,11 +54,11 @@ public class BrandService {
                 .map(brandMapper::toBrandResponse).toList();
     }
 
-    public BrandResponse createSize(BrandRequest request){
+    public BrandResponse create(BrandRequest request){
         BrandEntity brandEntity = brandMapper.toBrand(request);
 
         if(brandRepository.getTop1()==null){
-            brandEntity.setCode("SP1");
+            brandEntity.setCode("BR1");
         }else{
             String code = brandRepository.getTop1().getCode();
             brandEntity.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
