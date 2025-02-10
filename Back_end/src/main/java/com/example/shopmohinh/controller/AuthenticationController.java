@@ -1,23 +1,26 @@
 package com.example.shopmohinh.controller;
 
-import com.example.shopmohinh.dto.request.AuthenticationRequest;
-import com.example.shopmohinh.dto.request.IntrospectRequest;
-import com.example.shopmohinh.dto.request.LogoutRequest;
-import com.example.shopmohinh.dto.request.RefeshRequest;
+import com.example.shopmohinh.dto.request.*;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.AuthenticationResponse;
 import com.example.shopmohinh.dto.response.IntrospectResponse;
 import com.example.shopmohinh.service.AuthenticationService;
+import com.example.shopmohinh.service.PasswordResetService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,6 +31,8 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
+
+    PasswordResetService passwordResetService;
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
@@ -62,5 +67,16 @@ public class AuthenticationController {
                 .result(result)
                 .build();
 
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        return ResponseEntity.ok(passwordResetService.resetPassword(request.getToken(), request.getNewPassword()));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        return ResponseEntity.ok(passwordResetService.generateResetToken(email));
     }
 }
