@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
             select * from user order by user.id desc limit 1
             """, nativeQuery = true)
     User getTop1();
+
+    Optional<User> findByEmail(String email);
 }

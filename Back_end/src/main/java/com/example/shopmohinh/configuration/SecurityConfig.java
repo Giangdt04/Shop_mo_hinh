@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh"};
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/token", "/auth/introspect", "/auth/logout", "/auth/refresh", "/auth/reset-password", "/auth/forgot-password" };
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
@@ -37,10 +37,6 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/permissions/**").permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/users/showUser")
-//                        // same với .hasAuthority("ROLE_ADMIN")
-//                        .hasRole(Contant.ROLE_ADMIN)
-//                        .requestMatchers(HttpMethod.POST,"/auth/token","/auth/introspect").permitAll()
                         .anyRequest().authenticated());
 
 
