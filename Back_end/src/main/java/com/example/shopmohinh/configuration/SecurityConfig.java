@@ -37,6 +37,7 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/permissions/**").permitAll()
+                        .requestMatchers("/payment/**").permitAll()
                         .anyRequest().authenticated());
 
 
@@ -69,6 +70,7 @@ public class SecurityConfig {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
         //Chuyển từ SCOPE_ADMIN -> ROLE_ADMIN
+        //Khi khai báo cho Prefix là rỗng thì tiền tố sẽ lấy theo token
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

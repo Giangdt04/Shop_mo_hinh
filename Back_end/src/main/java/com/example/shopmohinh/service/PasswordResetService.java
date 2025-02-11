@@ -9,7 +9,6 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -46,13 +45,13 @@ public class PasswordResetService {
     }
 
     private void sendResetEmail(String email, String token) {
-        String resetLink = "Mã xác nhận của bạn là: " + token;
+        String resetLink = "Your password reset code: " + token;
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setTo(email);
             helper.setSubject("Reset Your Password");
-            helper.setText("Click the link to reset your password: " + resetLink, true);
+            helper.setText(resetLink, true);
             mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email");
