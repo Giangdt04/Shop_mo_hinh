@@ -68,9 +68,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/forgot-password")
-    public ApiResponse<String> forgotPassword(@RequestParam String email) {
+    public ApiResponse<String> forgotPassword(@RequestParam String email, @RequestParam String username ) {
         return ApiResponse.<String>builder()
-                .result(passwordResetService.forgotPassword(email))
+                .result(passwordResetService.forgotPassword(email, username))
                 .build();
     }
 

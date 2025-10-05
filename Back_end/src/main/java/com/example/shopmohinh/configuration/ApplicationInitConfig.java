@@ -44,6 +44,8 @@ public class ApplicationInitConfig {
                 User account = User.builder()
                         .username("admin")
                         .pass(passwordEncoder.encode("admin"))
+                        .email("giangdaica10x@gmail.com")
+                        .name("admin")
                         .build();
 
                 Set<Role> roles = new HashSet<>();

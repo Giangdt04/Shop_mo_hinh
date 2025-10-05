@@ -42,7 +42,11 @@ public enum ErrorCode {
 
     INVALID_VERIFICATION_CODE(400_005,"invalid verification code",HttpStatus.BAD_REQUEST),
 
-    VERIFICATION_TOKEN_NOT_FOUND(400_006,"verification code not found",HttpStatus.BAD_REQUEST)
+    VERIFICATION_TOKEN_NOT_FOUND(400_006,"verification code not found",HttpStatus.BAD_REQUEST),
+
+    MAIL_UNIQUE(400_007,"this mail has been existed",HttpStatus.BAD_REQUEST),
+
+    USERNAME_OR_EMAIL_INVALID(400_008,"username or email invalid",HttpStatus.BAD_REQUEST)
 
     ;
 

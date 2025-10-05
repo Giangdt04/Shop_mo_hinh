@@ -54,6 +54,7 @@ public class UserService {
         user.setPass(passwordEncoder.encode(request.getPass()));
         LocalDateTime now = LocalDateTime.now();
         user.setCreatedDate(now);
+        this.validateMailUnique(user.getEmail());
         if(Objects.nonNull(getMyInfo().getId())){
             user.setCreatedBy(getMyInfo().getUsername());
         }else{
@@ -66,6 +67,15 @@ public class UserService {
         user.setRoles(roles);
 
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    private void validateMailUnique(String mail){
+        List<UserResponse> userList = this.getUsers();
+        for (UserResponse user : userList) {
+            if(user.getEmail().equals(mail)){
+                throw new AppException(ErrorCode.MAIL_UNIQUE);
+            }
+        }
     }
 
     private String generateCode() {

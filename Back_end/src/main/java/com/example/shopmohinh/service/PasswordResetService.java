@@ -46,10 +46,11 @@ public class PasswordResetService {
     }
 
 
-    public String forgotPassword(String email) {
-        Optional<User> account = userRepository.findByEmail(email);
-        if (account.isEmpty()) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+    public String forgotPassword(String email, String username) {
+        User account = userRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        if(!account.getUsername().equals(username)){
+            throw new AppException(ErrorCode.USERNAME_OR_EMAIL_INVALID);
         }
 
         String token = UUID.randomUUID().toString();
