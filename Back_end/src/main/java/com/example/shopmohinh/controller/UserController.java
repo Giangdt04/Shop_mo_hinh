@@ -4,18 +4,15 @@ import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
-import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.service.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class UserController {
     @Autowired
@@ -45,8 +42,8 @@ public class UserController {
                 .build();
     }
 
-    @PostMapping()
-    public ApiResponse<UserResponse> register(@RequestBody @Valid UserCreationRequest request) {
+    @PostMapping("/register")
+    public ApiResponse<UserResponse> register(@ModelAttribute @Valid UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createdUser(request))
                 .build();

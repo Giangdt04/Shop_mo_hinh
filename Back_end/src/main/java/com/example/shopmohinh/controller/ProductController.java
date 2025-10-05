@@ -1,14 +1,14 @@
 package com.example.shopmohinh.controller;
 
 import com.example.shopmohinh.dto.request.ProductRequest;
-import com.example.shopmohinh.dto.request.RoleRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.ProductResponse;
-import com.example.shopmohinh.dto.response.RoleResponse;
-import com.example.shopmohinh.service.PermissionService;
+import com.example.shopmohinh.dto.search.ProductSearch;
 import com.example.shopmohinh.service.ProductService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +28,19 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<List<ProductResponse>> getAll(){
-        return ApiResponse.<List<ProductResponse>>builder()
-                .result(productService.getProduct())
+    public ApiResponse<Page<ProductResponse>> getAll(@NonNull ProductSearch request){
+        return ApiResponse.<Page<ProductResponse>>builder()
+                .result(productService.getProduct(request))
                 .build();
     }
+    @GetMapping("/{id}")
+    public ApiResponse<ProductResponse> getById(@PathVariable Long id){
+        return ApiResponse.<ProductResponse>builder()
+                .code(1000)
+                .result(productService.getDetailProduct(id))
+                .build();
+    }
+
 
     @DeleteMapping("/{code}")
     public ApiResponse<ProductResponse> delete(@PathVariable("code") String code){

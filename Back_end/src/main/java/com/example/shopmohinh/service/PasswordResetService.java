@@ -1,26 +1,27 @@
 package com.example.shopmohinh.service;
 
-import com.example.shopmohinh.entity.PasswordResetTokens;
 import com.example.shopmohinh.entity.User;
-import com.example.shopmohinh.repository.PasswordResetTokensRepository;
+import com.example.shopmohinh.exception.AppException;
+import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.repository.UserRepository;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
+
 @Service
+@Slf4j
 public class PasswordResetService {
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordResetTokensRepository tokenRepository;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -28,53 +29,92 @@ public class PasswordResetService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public String generateResetToken(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    public void sendEmail(String to, String subject, String text) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            mailSender.send(message);
+        } catch (Exception e) {
+            log.error("Failed to send email to {}: {}", to, e.getMessage(), e);
+            throw new AppException(ErrorCode.EMAIL_SENDING_FAILED);
+        }
+    }
+
+
+    public String forgotPassword(String email) {
+        Optional<User> account = userRepository.findByEmail(email);
+        if (account.isEmpty()) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
 
         String token = UUID.randomUUID().toString();
-        PasswordResetTokens resetToken = new PasswordResetTokens();
-        resetToken.setToken(token);
-        resetToken.setUser(user);
-        resetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
+        String redisKey = "password_reset:" + email;
 
-        tokenRepository.save(resetToken);
-        sendResetEmail(user.getEmail(), token);
+        // Lưu token vào Redis với TTL = 30 phút
+        redisTemplate.opsForValue().set(redisKey, token, Duration.ofMinutes(30));
 
-        return "Reset password link sent to your email!";
+        this.sendEmail(email, "Shopmohinh cấp mã quên mật khẩu",
+                "Mã: " + token);
+
+        return "Password reset email sent.";
     }
 
-    private void sendResetEmail(String email, String token) {
-        String resetLink = "Your password reset code: " + token;
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(email);
-            helper.setSubject("Reset Your Password");
-            helper.setText(resetLink, true);
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email");
+//    public static String generateRandomPassword(int length) {
+//        // Định nghĩa các ký tự có thể có trong mật khẩu
+//        String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+//        String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
+//        String numbers = "0123456789";
+//        String specialChars = "!@#$%^&*()-_=+[]{}|;:,.<>?";
+//
+//        // Kết hợp tất cả các ký tự
+//        String allChars = upperCaseChars + lowerCaseChars + numbers + specialChars;
+//
+//        // Sử dụng SecureRandom để tạo số ngẫu nhiên
+//        SecureRandom random = new SecureRandom();
+//
+//        StringBuilder password = new StringBuilder(length);
+//
+//        // Sinh ra mật khẩu ngẫu nhiên
+//        for (int i = 0; i < length; i++) {
+//            int index = random.nextInt(allChars.length());  // Chọn ngẫu nhiên một ký tự từ tất cả các ký tự có sẵn
+//            password.append(allChars.charAt(index));
+//        }
+//
+//        return password.toString();
+//    }
+
+    //Kiểm tra token
+    public String verifyVerificationCode(String email, String token) {
+        String redisKey = "password_reset:" + email;
+        String savedToken = redisTemplate.opsForValue().get(redisKey);
+
+        if (savedToken == null) {
+            throw new AppException(ErrorCode.VERIFICATION_TOKEN_NOT_FOUND);
         }
-    }
 
-    public String resetPassword(String token, String newPassword) {
-        PasswordResetTokens resetToken = tokenRepository.findByToken(token);
-
-        if (resetToken == null || resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            return "Invalid or expired token!";
+        if (!savedToken.equals(token)) {
+            throw new AppException(ErrorCode.INVALID_VERIFICATION_CODE);
         }
 
-        User user = resetToken.getUser();
-
-        // Chỉ cập nhật mật khẩu, không thay đổi thông tin khác
-        user.setPass(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-
-        // Xóa token sau khi sử dụng
-        tokenRepository.delete(resetToken);
-
-        return "Password reset successful!";
+        return "Verification code is valid.";
     }
 
+    //Kiểm tra token
+    public String resetPassword(String email,String newPassword) {
+        Optional<User> account = userRepository.findByEmail(email);
+        if (account.isEmpty()) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+
+        User newAccount = account.get();
+        newAccount.setPass(passwordEncoder.encode(newPassword));
+        userRepository.save(newAccount);
+
+        return "password has been reset.";
+    }
 }

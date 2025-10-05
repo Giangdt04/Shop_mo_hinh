@@ -38,6 +38,11 @@ public enum ErrorCode {
 
     FILE_UPLOAD_FAILED(400_003,"upload fail",HttpStatus.BAD_REQUEST),
 
+    EMAIL_SENDING_FAILED(400_004,"send email fail",HttpStatus.BAD_REQUEST),
+
+    INVALID_VERIFICATION_CODE(400_005,"invalid verification code",HttpStatus.BAD_REQUEST),
+
+    VERIFICATION_TOKEN_NOT_FOUND(400_006,"verification code not found",HttpStatus.BAD_REQUEST)
 
     ;
 

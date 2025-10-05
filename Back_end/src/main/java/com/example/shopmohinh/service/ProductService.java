@@ -1,93 +1,135 @@
 package com.example.shopmohinh.service;
 
+import com.example.shopmohinh.dto.projection.ProductProjection;
 import com.example.shopmohinh.dto.request.CategoryRequest;
+import com.example.shopmohinh.dto.request.ImageRequest;
 import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.request.ProductRequest;
-import com.example.shopmohinh.dto.response.CategoryResponse;
-import com.example.shopmohinh.dto.response.PermissionResponse;
-import com.example.shopmohinh.dto.response.ProductResponse;
-import com.example.shopmohinh.dto.response.UserResponse;
-import com.example.shopmohinh.entity.Category;
-import com.example.shopmohinh.entity.Permission;
-import com.example.shopmohinh.entity.Product;
-import com.example.shopmohinh.entity.User;
+import com.example.shopmohinh.dto.response.*;
+import com.example.shopmohinh.dto.search.ProductSearch;
+import com.example.shopmohinh.entity.*;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.ProductMapper;
 import com.example.shopmohinh.mapper.UserMapper;
+import com.example.shopmohinh.repository.ImageRepository;
 import com.example.shopmohinh.repository.ProductRepository;
 import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.util.FileUploadUtil;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
+import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 //Thay thế cho @Autowired
 //@RequiredArgsConstructor sẽ tự động tạo contructor của những method đc khai báo là final
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ProductService {
     ProductRepository productRepository;
 
     ProductMapper productMapper;
 
-    UserRepository userRepository;
+    FileUploadUtil fileUploadUtil;
 
-    UserMapper userMapper;
+    UserService userService;
 
-    // lấy thông tin người đang đăng nhập
-    public UserResponse getMyInfo() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
+    ImageRepository imageRepository;
 
-        User user = userRepository.findByUsername(name).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        return userMapper.toUserResponse(user);
-    }
-
-    public ProductResponse create(ProductRequest request){
+    @Transactional
+    public ProductResponse create(ProductRequest request) {
 
         Product product = productMapper.toProduct(request);
 
-        if(productRepository.getTop1()==null){
+        if (productRepository.getTop1() == null) {
             product.setCode("SP1");
-        }else{
+        } else {
             String code = productRepository.getTop1().getCode();
-            product.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
+            product.setCode(code.substring(0, 2) + ((Integer.parseInt(code.substring(2))) + 1));
         }
 
         LocalDateTime now = LocalDateTime.now();
 
         product.setCreatedDate(now);
 
-        Long id = getMyInfo().getId();
+        product.setCreatedBy(userService.getMyInfo().getUsername());
 
-        product.setCreatedBy(String.valueOf(id));
+        Product saveProduct = productRepository.save(product);
 
-        return productMapper.toProductResponse(productRepository.save(product));
+        this.setImages(saveProduct, request.getImages());
+
+        return productMapper.toProductResponse(saveProduct);
     }
 
-    public List<ProductResponse> getProduct(){
+    private void setImages(Product product, List<ImageRequest> requests) {
+        if (requests == null || requests.isEmpty()) return;
 
-        var product = productRepository.findAll();
+        List<ImageEntity> images = new ArrayList<>();
 
-        return product.stream().map(productMapper::toProductResponse).toList();
+        for (ImageRequest request : requests) {
+            String url = fileUploadUtil.uploadFile(request.getImageFile());
+
+            ImageEntity img = new ImageEntity();
+            img.setImageUrl(url);
+            img.setMainImage(request.getMainImage());
+            img.setProduct(product);
+
+            images.add(img);
+        }
+
+        imageRepository.saveAll(images);
     }
 
-    public ProductResponse delete(String code){
+    public Page<ProductResponse> getProduct(@NonNull ProductSearch request) {
+
+        Pageable pageable = PageRequest.of(request.getPageIndex() - 1, request.getPageSize());
+
+        Page<ProductProjection> products = productRepository.getAll(request, pageable);
+
+        return products.map(ProductResponse::new);
+    }
+
+    public ProductResponse getDetailProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        List<ImageEntity> images = imageRepository.findByProduct(product);
+        ProductResponse response = productMapper.toProductResponse(product);
+
+        if(!ObjectUtils.isEmpty(images)){
+            List<ImageResponse> imageResponses = images.stream()
+                    .map(img -> new ImageResponse(img.getId(), img.getImageUrl(), img.isMainImage()))
+                    .collect(Collectors.toList());
+            response.setImages(imageResponses);
+        }
+
+        return response;
+    }
+
+    public ProductResponse delete(String code) {
         Product product = productRepository.findByCode(code)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        if(product != null){
+        if (product != null) {
             product.setDeleted(false);
         }
 
@@ -105,10 +147,14 @@ public class ProductService {
 
         product.setUpdatedDate(now);
 
-        Long id = getMyInfo().getId();
+        String userName = userService.getMyInfo().getUsername();
 
-        product.setUpdatedBy(String.valueOf(id));
+        product.setUpdatedBy(userName);
 
-        return productMapper.toProductResponse(productRepository.save(product));
+        Product updateProduct = productRepository.save(product);
+
+        this.setImages(updateProduct, request.getImages());
+
+        return productMapper.toProductResponse(updateProduct);
     }
 }

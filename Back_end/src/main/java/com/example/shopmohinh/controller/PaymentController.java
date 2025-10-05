@@ -1,22 +1,13 @@
 package com.example.shopmohinh.controller;
 
-import com.example.shopmohinh.configuration.VnpayConfig;
-import com.example.shopmohinh.dto.request.PaymentResquest;
 import com.example.shopmohinh.service.VnpayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.ObjectInputFilter;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.example.shopmohinh.configuration.VnpayConfig.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/payment")
@@ -31,7 +22,7 @@ public class PaymentController {
                                               HttpServletRequest request) {
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         String vnpayUrl = vnpayService.createOrder(orderTotal, orderInfo, baseUrl);
-        return ResponseEntity.ok(vnpayUrl); // Trả về URL trực tiếp
+        return ResponseEntity.ok(vnpayUrl);
     }
 
     @GetMapping("/vnpay-payment")

@@ -1,7 +1,5 @@
 package com.example.shopmohinh.service;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.UserResponse;
@@ -12,22 +10,18 @@ import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.UserMapper;
 import com.example.shopmohinh.repository.RoleRepository;
 import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.util.FileUploadUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,7 +39,7 @@ public class UserService {
 
     UserMapper userMapper;
 
-    Cloudinary cloudinary;
+    FileUploadUtil fileUploadUtil;
 
     public UserResponse createdUser(UserCreationRequest request) {
 
@@ -60,9 +54,12 @@ public class UserService {
         user.setPass(passwordEncoder.encode(request.getPass()));
         LocalDateTime now = LocalDateTime.now();
         user.setCreatedDate(now);
-        Long id = getMyInfo().getId();
-        user.setCreatedBy(String.valueOf(id));
-        user.setAvatar(uploadAvatar(request.getAvatarFile()));
+        if(Objects.nonNull(getMyInfo().getId())){
+            user.setCreatedBy(getMyInfo().getUsername());
+        }else{
+            user.setCreatedBy("SYSTEM");
+        }
+        user.setAvatar(fileUploadUtil.uploadFile(request.getAvatarFile()));
 
         // Lấy role từ request
         Set<Role> roles = getRolesFromRequest(request.getRoles());
@@ -135,10 +132,11 @@ public class UserService {
     public UserResponse getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-
+        if(name.equals("anonymousUser")){
+            name = "admin";
+        }
         User user = userRepository.findByUsername(name).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
-
         return userMapper.toUserResponse(user);
     }
 
@@ -159,7 +157,7 @@ public class UserService {
         user.setPass(passwordEncoder.encode(request.getPass()));
 
         if (request.getAvatarFile() != null && !request.getAvatarFile().isEmpty()) {
-            user.setAvatar(uploadAvatar(request.getAvatarFile()));
+            user.setAvatar(fileUploadUtil.uploadFile(request.getAvatarFile()));
         }
 
         var roles = roleRepository.findAllById(request.getRoles());
@@ -180,32 +178,4 @@ public class UserService {
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
-    private String uploadAvatar(MultipartFile avatarFile) {
-        if (avatarFile != null && !avatarFile.isEmpty()) {
-            try {
-                return uploadFile(avatarFile);
-            } catch (IOException e) {
-                log.error("Error uploading file: {}", e.getMessage());
-                throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
-            }
-        }
-        log.warn("No avatar file provided, using default avatar URL.");
-        return "https://asset.cloudinary.com/dvxobkvcx/ec27e05c5476c3c95ce0d4cc48841456";
-    }
-
-    public String uploadFile(MultipartFile file) throws IOException {
-        String contentType = file.getContentType();
-        if (contentType == null || !contentType.startsWith("image/")) {
-            throw new AppException(ErrorCode.INVALID_FILE_TYPE);
-        }
-
-        try {
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap("resource_type", "auto"));
-            return uploadResult.get("url").toString();
-        } catch (IOException e) {
-            log.error("Upload file failed: {}", e.getMessage());
-            throw new AppException(ErrorCode.FILE_UPLOAD_FAILED);
-        }
-    }
 }

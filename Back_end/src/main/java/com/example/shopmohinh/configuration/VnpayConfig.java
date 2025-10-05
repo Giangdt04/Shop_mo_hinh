@@ -1,7 +1,6 @@
 package com.example.shopmohinh.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;

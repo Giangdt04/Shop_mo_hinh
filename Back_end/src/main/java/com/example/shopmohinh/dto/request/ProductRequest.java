@@ -2,8 +2,11 @@ package com.example.shopmohinh.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,19 +21,21 @@ public class ProductRequest {
 
     String description;
 
-    Boolean status;
+    int status;
 
-    String hight;
+    Double height;
 
-    String weight;
+    Double weight;
 
-    Long quantity;
+    Integer quantity;
 
-    Double price;
+    BigDecimal price;
 
     Long category_id;
 
     Boolean deleted;
+
+    List<ImageRequest> images;
 
     LocalDateTime createdDate;
 
