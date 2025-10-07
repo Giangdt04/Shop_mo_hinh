@@ -1,20 +1,19 @@
 package com.example.shopmohinh.service;
 
 import com.example.shopmohinh.dto.projection.ProductProjection;
-import com.example.shopmohinh.dto.request.CategoryRequest;
 import com.example.shopmohinh.dto.request.ImageRequest;
-import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.request.ProductRequest;
-import com.example.shopmohinh.dto.response.*;
+import com.example.shopmohinh.dto.response.ImageResponse;
+import com.example.shopmohinh.dto.response.ProductResponse;
 import com.example.shopmohinh.dto.search.ProductSearch;
-import com.example.shopmohinh.entity.*;
+import com.example.shopmohinh.entity.ImageEntity;
+import com.example.shopmohinh.entity.Product;
+import com.example.shopmohinh.entity.ProductSearchEntity;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.ProductMapper;
-import com.example.shopmohinh.mapper.UserMapper;
 import com.example.shopmohinh.repository.ImageRepository;
 import com.example.shopmohinh.repository.ProductRepository;
-import com.example.shopmohinh.repository.UserRepository;
 import com.example.shopmohinh.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -25,14 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,6 +49,8 @@ public class ProductService {
 
     ImageRepository imageRepository;
 
+//    ProductSearchRepository searchRepository;
+
 
     @Transactional
     public ProductResponse create(ProductRequest request) {
@@ -72,12 +70,24 @@ public class ProductService {
 
         product.setCreatedBy(userService.getMyInfo().getUsername());
 
+//        this.setSearchProducts(product);
+
         Product saveProduct = productRepository.save(product);
 
         this.setImages(saveProduct, request.getImages());
 
         return productMapper.toProductResponse(saveProduct);
     }
+
+//    private void setSearchProducts(Product product){
+//        ProductSearchEntity productSearch = new ProductSearchEntity();
+//        productSearch.setCode(product.getCode());
+//        productSearch.setName(product.getName());
+//        productSearch.setStatus(product.getStatus());
+//        productSearch.setDescription(product.getDescription());
+//        productSearch.setCreatedDate(product.getCreatedDate());
+//        searchRepository.save(productSearch);
+//    }
 
     private void setImages(Product product, List<ImageRequest> requests) {
         if (requests == null || requests.isEmpty()) return;

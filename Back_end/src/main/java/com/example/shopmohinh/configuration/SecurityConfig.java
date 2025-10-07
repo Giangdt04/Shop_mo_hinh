@@ -24,7 +24,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final String[] PUBLIC_ENDPOINTS = {"/users/register", "/auth/**"};
+    private final String[] PUBLIC_ENDPOINTS = {"/users/register", "/auth/**", "events/**"};
 
     @Autowired
     private CustomJwtDecoder customJwtDecoder;
