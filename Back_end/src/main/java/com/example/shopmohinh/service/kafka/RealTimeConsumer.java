@@ -1,6 +1,7 @@
 package com.example.shopmohinh.service.kafka;
 
 import com.example.shopmohinh.dto.search.ProductEventDTO;
+import com.example.shopmohinh.service.websocket.SocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -13,6 +14,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -23,6 +25,8 @@ public class RealTimeConsumer {
     StringRedisTemplate redisTemplate;
 
     ObjectMapper objectMapper;
+
+    SocketHandler socketHandler;
 
     @KafkaListener(topics = "product-view-events", groupId = "real_time_group")
     public void listen(String message) {
@@ -64,5 +68,11 @@ public class RealTimeConsumer {
 
         String count = redisTemplate.opsForValue().get(productViewKey);
         log.info("Product [{}] total views = {}", productId, count);
+        // Gửi realtime update tới frontend
+        Map<String, Object> data = Map.of(
+                "productId", productId,
+                "viewCount", count != null ? count : "0"
+        );
+        socketHandler.broadcast("updateProductView", data);
     }
 }
