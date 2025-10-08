@@ -1,4 +1,4 @@
-package com.example.shopmohinh.service;
+package com.example.shopmohinh.service.impl;
 
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
@@ -12,7 +12,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;

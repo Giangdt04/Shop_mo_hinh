@@ -1,7 +1,7 @@
 package com.example.shopmohinh.configuration;
 
 import com.example.shopmohinh.dto.request.IntrospectRequest;
-import com.example.shopmohinh.service.AuthenticationService;
+import com.example.shopmohinh.service.impl.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;

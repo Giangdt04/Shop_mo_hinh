@@ -4,7 +4,7 @@ import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
-import com.example.shopmohinh.service.UserService;
+import com.example.shopmohinh.service.impl.UserService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

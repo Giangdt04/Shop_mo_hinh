@@ -1,9 +1,7 @@
-package com.example.shopmohinh.service;
+package com.example.shopmohinh.service.impl;
 
 import com.example.shopmohinh.dto.projection.ProductProjection;
-import com.example.shopmohinh.dto.request.CategoryRequest;
 import com.example.shopmohinh.dto.request.ImageRequest;
-import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.request.ProductRequest;
 import com.example.shopmohinh.dto.response.*;
 import com.example.shopmohinh.dto.search.ProductSearch;
@@ -11,10 +9,8 @@ import com.example.shopmohinh.entity.*;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.ProductMapper;
-import com.example.shopmohinh.mapper.UserMapper;
 import com.example.shopmohinh.repository.ImageRepository;
 import com.example.shopmohinh.repository.ProductRepository;
-import com.example.shopmohinh.repository.UserRepository;
 import com.example.shopmohinh.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
@@ -25,12 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;

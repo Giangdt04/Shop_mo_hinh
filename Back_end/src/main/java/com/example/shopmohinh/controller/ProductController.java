@@ -4,14 +4,12 @@ import com.example.shopmohinh.dto.request.ProductRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.ProductResponse;
 import com.example.shopmohinh.dto.search.ProductSearch;
-import com.example.shopmohinh.service.ProductService;
+import com.example.shopmohinh.service.impl.ProductService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/product")

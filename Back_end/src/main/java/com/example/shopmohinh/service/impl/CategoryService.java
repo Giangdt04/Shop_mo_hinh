@@ -1,15 +1,9 @@
-package com.example.shopmohinh.service;
+package com.example.shopmohinh.service.impl;
 
 import com.example.shopmohinh.dto.request.CategoryRequest;
-import com.example.shopmohinh.dto.request.PermissionRequest;
-import com.example.shopmohinh.dto.request.RoleRequest;
 import com.example.shopmohinh.dto.response.CategoryResponse;
-import com.example.shopmohinh.dto.response.PermissionResponse;
-import com.example.shopmohinh.dto.response.RoleResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.entity.Category;
-import com.example.shopmohinh.entity.Permission;
-import com.example.shopmohinh.entity.Role;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
@@ -26,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 
 @Service

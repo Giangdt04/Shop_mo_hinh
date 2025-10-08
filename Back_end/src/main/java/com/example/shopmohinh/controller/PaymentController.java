@@ -1,6 +1,6 @@
 package com.example.shopmohinh.controller;
 
-import com.example.shopmohinh.service.VnpayService;
+import com.example.shopmohinh.service.impl.VnpayService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

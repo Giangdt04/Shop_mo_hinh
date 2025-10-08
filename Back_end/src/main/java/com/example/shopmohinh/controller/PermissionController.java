@@ -3,14 +3,9 @@ package com.example.shopmohinh.controller;
 import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.PermissionResponse;
-import com.example.shopmohinh.dto.response.UserResponse;
-import com.example.shopmohinh.service.PermissionService;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import com.example.shopmohinh.service.impl.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

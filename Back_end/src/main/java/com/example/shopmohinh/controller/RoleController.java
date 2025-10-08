@@ -1,14 +1,9 @@
 package com.example.shopmohinh.controller;
 
-import com.example.shopmohinh.dto.request.PermissionRequest;
 import com.example.shopmohinh.dto.request.RoleRequest;
-import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
-import com.example.shopmohinh.dto.response.PermissionResponse;
 import com.example.shopmohinh.dto.response.RoleResponse;
-import com.example.shopmohinh.dto.response.UserResponse;
-import com.example.shopmohinh.service.PermissionService;
-import com.example.shopmohinh.service.RoleService;
+import com.example.shopmohinh.service.impl.RoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,12 +1,9 @@
 package com.example.shopmohinh.controller;
 
 import com.example.shopmohinh.dto.request.BrandRequest;
-import com.example.shopmohinh.dto.request.MaterialRequest;
 import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.BrandResponse;
-import com.example.shopmohinh.dto.response.MaterialResponse;
-import com.example.shopmohinh.service.BrandService;
-import com.example.shopmohinh.service.MaterialService;
+import com.example.shopmohinh.service.impl.BrandService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

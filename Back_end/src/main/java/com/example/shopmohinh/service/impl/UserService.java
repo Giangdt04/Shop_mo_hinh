@@ -1,16 +1,19 @@
-package com.example.shopmohinh.service;
+package com.example.shopmohinh.service.impl;
 
 import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.UserResponse;
+import com.example.shopmohinh.entity.CartEntity;
 import com.example.shopmohinh.entity.Role;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.UserMapper;
+import com.example.shopmohinh.repository.CartRepository;
 import com.example.shopmohinh.repository.RoleRepository;
 import com.example.shopmohinh.repository.UserRepository;
 import com.example.shopmohinh.util.FileUploadUtil;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -41,6 +44,9 @@ public class UserService {
 
     FileUploadUtil fileUploadUtil;
 
+    CartRepository cartRepository;
+
+    @Transactional
     public UserResponse createdUser(UserCreationRequest request) {
 
         // Kiểm tra xem tài khoản với username "admin" đã tồn tại chưa
@@ -66,7 +72,15 @@ public class UserService {
         Set<Role> roles = getRolesFromRequest(request.getRoles());
         user.setRoles(roles);
 
-        return userMapper.toUserResponse(userRepository.save(user));
+        User savedUser = userRepository.save(user);
+
+        CartEntity cart = new CartEntity();
+        cart.setUser(savedUser);
+        cart.setCreatedDate(now);
+        cart.setCreatedBy(savedUser.getUsername());
+        cartRepository.save(cart);
+
+        return userMapper.toUserResponse(savedUser);
     }
 
     private void validateMailUnique(String mail){
