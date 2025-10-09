@@ -8,6 +8,7 @@ import com.example.shopmohinh.entity.Product;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.CartDetailMapper;
+import com.example.shopmohinh.mapper.ProductMapper;
 import com.example.shopmohinh.repository.CartDetailRepository;
 import com.example.shopmohinh.repository.CartRepository;
 import com.example.shopmohinh.repository.ProductRepository;
@@ -36,13 +37,19 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     CartDetailMapper cartDetailMapper;
 
+    ProductMapper productMapper;
+
     @Override
     @Transactional
     public CartDetailResponse addProductToCartDetail(CartDetailRequest request) {
-        CartDetailEntity entity = new CartDetailEntity();
+        CartDetailEntity entity = cartDetailRepository.findByProductId(request.getProductId());
+        if(entity != null){
+            throw new AppException(ErrorCode.PRODUCT_HAS_BEEN_EXITED);
+        }
         this.genCodeCart(entity);
         entity.setQuantity(request.getQuantity());
-        CartEntity cartEntity = cartRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        CartEntity cartEntity = cartRepository.findByUsername(username);
         if (cartEntity != null) {
             entity.setCart(cartEntity);
         }else {
@@ -51,7 +58,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         Product product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         entity.setProduct(product);
-        return cartDetailMapper.toResponse(cartDetailRepository.save(entity));
+        return this.toResponse(cartDetailRepository.save(entity));
     }
 
     @Override
@@ -72,5 +79,26 @@ public class CartDetailServiceImpl implements CartDetailService {
             String code = top1.getCode();
             saveCart.setCode(code.substring(0,defaultCode.length()-1)+((Integer.parseInt(code.substring(defaultCode.length()-1)))+1));
         }
+    }
+
+    private CartDetailResponse toResponse(CartDetailEntity entity) {
+        if (entity == null) return null;
+
+        CartDetailResponse response = new CartDetailResponse();
+        response.setId(entity.getId());
+        response.setCode(entity.getCode());
+        response.setQuantity(entity.getQuantity());
+
+        if (entity.getProduct() != null) {
+            response.setProductResponse(productMapper.toProductResponse(entity.getProduct()));
+        }
+
+        if (entity.getCart() != null) {
+            response.setCartCode(entity.getCart().getCode());
+            if (entity.getCart().getUser() != null) {
+                response.setUsername(entity.getCart().getUser().getUsername());
+            }
+        }
+        return response;
     }
 }

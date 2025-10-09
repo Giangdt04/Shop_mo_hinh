@@ -18,8 +18,8 @@ import java.util.List;
 public class CartDetailController {
     private final CartDetailServiceImpl cartDetailService;
 
-    @PostMapping()
-    public ApiResponse<CartDetailResponse> addProductToCartDetail(@NonNull @RequestBody CartDetailRequest request) {
+    @PostMapping
+    public ApiResponse<CartDetailResponse> addProductToCartDetail(@RequestBody CartDetailRequest request) {
         return ApiResponse.<CartDetailResponse>builder()
                 .code(1000)
                 .result(cartDetailService.addProductToCartDetail(request))

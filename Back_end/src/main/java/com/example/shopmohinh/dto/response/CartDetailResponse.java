@@ -18,4 +18,6 @@ public class CartDetailResponse {
     String cartCode;
 
     String username;
+
+
 }

@@ -6,6 +6,7 @@ import com.example.shopmohinh.dto.response.ApiResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.service.impl.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,9 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin")
 @Slf4j
+@RequiredArgsConstructor
 public class AdminController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     //thêm @Valid để create chạy validate
     @PostMapping("/create")

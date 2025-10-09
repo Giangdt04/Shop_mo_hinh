@@ -31,6 +31,7 @@ public enum ErrorCode {
     MAIL_UNIQUE(400_007,"this mail has been existed",HttpStatus.BAD_REQUEST),
     USERNAME_OR_EMAIL_INVALID(400_008,"username or email invalid",HttpStatus.BAD_REQUEST),
     PRODUCT_DO_NOT_EMPTY(400_009,"product do not empty",HttpStatus.BAD_REQUEST),
+    PRODUCT_HAS_BEEN_EXITED(400_010,"This product is already in your shopping cart.",HttpStatus.BAD_REQUEST),
 
     CART_NOT_FOUND(404_001,"cart not found",HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND(404_002,"product not found",HttpStatus.NOT_FOUND)

@@ -43,7 +43,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ApiResponse<UserResponse> register(@ModelAttribute @Valid UserCreationRequest request) {
+    public ApiResponse<UserResponse> register(@ModelAttribute UserCreationRequest request) {
         return ApiResponse.<UserResponse>builder()
                 .result(userService.createdUser(request))
                 .build();
