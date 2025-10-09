@@ -77,6 +77,7 @@ public class UserService {
         CartEntity cart = new CartEntity();
         cart.setUser(savedUser);
         cart.setCreatedDate(now);
+        this.genCodeCart(cart);
         cart.setCreatedBy(savedUser.getUsername());
         cartRepository.save(cart);
 
@@ -103,6 +104,16 @@ public class UserService {
             return prefix + (number + 1);
         } else {
             return "USER001";
+        }
+    }
+
+    private void genCodeCart(CartEntity saveCart){
+        CartEntity top1 = cartRepository.getTop1();
+        if(top1==null){
+            saveCart.setCode("CART1");
+        }else{
+            String code = top1.getCode();
+            saveCart.setCode(code.substring(0,4)+((Integer.parseInt(code.substring(4)))+1));
         }
     }
 

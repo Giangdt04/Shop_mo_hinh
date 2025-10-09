@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CartRepository extends JpaRepository<CartEntity, Long> {
+    CartEntity getTop1();
+
+    CartEntity findByUsername(String username);
 }

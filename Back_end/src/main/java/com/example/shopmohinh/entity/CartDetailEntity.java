@@ -17,7 +17,7 @@ public class CartDetailEntity extends AbtractEntity{
     String code;
 
     @Column(name = "quantity")
-    String quantity;
+    Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", referencedColumnName = "ID")
