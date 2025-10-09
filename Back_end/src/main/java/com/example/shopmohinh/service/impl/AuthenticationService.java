@@ -52,7 +52,7 @@ public class AuthenticationService {
             "jyl4q4MPE5mpdiRnlDFpjWb3Vowfj52sYT9YHRSOsQlLIhznImeyGZZFUnz8ghEl";
 
     @NonFinal
-    protected static final long VALID_DURATION = 10800; // IN SECOND
+    protected static final long VALID_DURATION = 30; // IN SECOND
 
     @NonFinal
     protected static final long REFRESHABLE_DURATION = 108000 ; // IN SECONDS
@@ -163,12 +163,10 @@ public class AuthenticationService {
         if (!(verifired && expitTime.after(new Date()))) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-
         if (invalidatedTokenRepository
                 .existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-
         return signedJWT;
     }
 
@@ -183,7 +181,7 @@ public class AuthenticationService {
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         //token hết hạn sau 1 giờ
-                        Instant.now().plus(30, ChronoUnit.DAYS).toEpochMilli()
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.DAYS).toEpochMilli()
                 ))
                 //ID của token
                 .jwtID(UUID.randomUUID().toString())
