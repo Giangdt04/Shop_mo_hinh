@@ -1,6 +1,9 @@
 package com.example.shopmohinh.service;
 
+import com.example.shopmohinh.dto.request.ProductEventRequest;
+import com.example.shopmohinh.dto.response.ProductEventResponse;
+import jakarta.servlet.http.HttpServletRequest;
+
 public interface EventProducerService {
-    <T> void sendEvent(String topic ,T Object);
-    <T> void sendMessageJsonAsync(String topic, T object);
+    ProductEventResponse sendEvent(String topic , ProductEventRequest req, HttpServletRequest request);
 }

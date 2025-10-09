@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     //Bắt ngoại lệ chưa xử lý
-//    @ExceptionHandler(value = Exception.class)
-//    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception){
-//        ApiResponse response = new ApiResponse();
-//        response.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-//        response.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
-//        return ResponseEntity.badRequest().body(response);
-//    }
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception){
+        ApiResponse response = new ApiResponse();
+        response.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        response.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
 
     //Ngoại lệ đã xử lý
     @ExceptionHandler(value = AppException.class)

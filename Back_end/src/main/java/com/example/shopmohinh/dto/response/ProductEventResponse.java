@@ -1,6 +1,6 @@
-package com.example.shopmohinh.dto.search;
+package com.example.shopmohinh.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,11 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductEventDTO {
+public class ProductEventResponse {
     private Long productId;
     private String sessionId;
     private String actionType; // "VIEW" | "SEARCH"
     private String keyword; // dùng khi actionType = "SEARCH"
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp ;
 }

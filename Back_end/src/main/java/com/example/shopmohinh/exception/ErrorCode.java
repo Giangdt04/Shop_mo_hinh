@@ -46,7 +46,9 @@ public enum ErrorCode {
 
     MAIL_UNIQUE(400_007,"this mail has been existed",HttpStatus.BAD_REQUEST),
 
-    USERNAME_OR_EMAIL_INVALID(400_008,"username or email invalid",HttpStatus.BAD_REQUEST)
+    USERNAME_OR_EMAIL_INVALID(400_008,"username or email invalid",HttpStatus.BAD_REQUEST),
+
+    UNCATEGORIZED_EXCEPTION(9999,"UNCATEGORIZED EXCEPTION",HttpStatus.BAD_REQUEST)
 
     ;
 
