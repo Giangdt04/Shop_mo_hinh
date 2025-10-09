@@ -12,6 +12,8 @@ public class ProductSearch extends SearchDto {
 
     String name = null;
 
+    String keyword;
+
     int status;
 
     Double height;
