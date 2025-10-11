@@ -16,7 +16,7 @@ public class VnpayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
     public static String vnp_Returnurl = "/vnpay-payment";
     public static String vnp_TmnCode = "AWGWGVZ3";
-    public static String vnp_HashSecret = "O3ETWUK70V19JMA3ZN9PUUHVIZ5PZ64D";
+    public static String vnp_HashSecret = "KNEFBCWPAB28L7NQZ4BUKSTGOHTTHKFY";
     public static String vnp_apiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
 
     public static String md5(String message) {
@@ -56,25 +56,34 @@ public class VnpayConfig {
     }
 
     //Util for VNPAY
-    public static String hashAllFields(Map fields) {
-        List fieldNames = new ArrayList(fields.keySet());
+    public static String hashAllFields(Map<String, String> fields) {
+        List<String> fieldNames = new ArrayList<>(fields.keySet());
         Collections.sort(fieldNames);
+
         StringBuilder sb = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) fields.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+        for (int i = 0; i < fieldNames.size(); i++) {
+            String fieldName = fieldNames.get(i);
+            String fieldValue = fields.get(fieldName);
+            if (fieldValue != null && fieldValue.length() > 0) {
                 sb.append(fieldName);
-                sb.append("=");
-                sb.append(fieldValue);
-            }
-            if (itr.hasNext()) {
-                sb.append("&");
+                sb.append('=');
+                sb.append(urlEncode(fieldValue));
+                if (i < fieldNames.size() - 1) {
+                    sb.append('&');
+                }
             }
         }
-        return hmacSHA512(vnp_HashSecret,sb.toString());
+        return hmacSHA512(vnp_HashSecret, sb.toString());
     }
+
+    private static String urlEncode(String value) {
+        try {
+            return java.net.URLEncoder.encode(value, StandardCharsets.US_ASCII.toString());
+        } catch (Exception e) {
+            return value;
+        }
+    }
+
 
     public static String hmacSHA512(final String key, final String data) {
         try {

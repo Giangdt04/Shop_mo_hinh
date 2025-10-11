@@ -2,6 +2,7 @@ package com.example.shopmohinh.service.impl;
 
 import com.example.shopmohinh.configuration.VnpayConfig;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
+@Slf4j
 public class VnpayService {
 
     public String createOrder(int total, String orderInfo, String urlReturn){
@@ -33,6 +35,7 @@ public class VnpayService {
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", orderInfo);
         vnp_Params.put("vnp_OrderType", orderType);
+        vnp_Params.put("vnp_BankCode", "NCB");
 
         String locate = "vn";
         vnp_Params.put("vnp_Locale", locate);
@@ -84,38 +87,43 @@ public class VnpayService {
         return paymentUrl;
     }
 
-    public int orderReturn(HttpServletRequest request){
-        Map fields = new HashMap();
-        for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
-            String fieldName = null;
-            String fieldValue = null;
-            try {
-                fieldName = URLEncoder.encode((String) params.nextElement(), StandardCharsets.US_ASCII.toString());
-                fieldValue = URLEncoder.encode(request.getParameter(fieldName), StandardCharsets.US_ASCII.toString());
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+    public int orderReturn(HttpServletRequest request) {
+        Map<String, String> fields = new HashMap<>();
+
+        // Lấy toàn bộ parameter từ VNPay gửi về
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
+            String fieldName = params.nextElement();
+            String fieldValue = request.getParameter(fieldName);
+            if (fieldValue != null && fieldValue.length() > 0) {
                 fields.put(fieldName, fieldValue);
             }
         }
 
+        // Lấy SecureHash do VNPay gửi về
         String vnp_SecureHash = request.getParameter("vnp_SecureHash");
-        if (fields.containsKey("vnp_SecureHashType")) {
-            fields.remove("vnp_SecureHashType");
-        }
-        if (fields.containsKey("vnp_SecureHash")) {
-            fields.remove("vnp_SecureHash");
-        }
+
+        // Xóa các trường không tham gia ký
+        fields.remove("vnp_SecureHashType");
+        fields.remove("vnp_SecureHash");
+
+        // Tạo chữ ký local từ dữ liệu nhận được
         String signValue = VnpayConfig.hashAllFields(fields);
+
+        log.info(">>> VNPAY RETURN DATA: {}", fields);
+        log.info(">>> Local Sign: {}", signValue);
+        log.info(">>> Remote Sign: {}", vnp_SecureHash);
+
+
+        // So sánh checksum
         if (signValue.equals(vnp_SecureHash)) {
+            // Giao dịch thành công
             if ("00".equals(request.getParameter("vnp_TransactionStatus"))) {
-                return 1;
+                return 1; // Success
             } else {
-                return 0;
+                return 0; // Transaction failed
             }
         } else {
-            return -1;
+            return -1; // Sai chữ ký
         }
     }
 }
