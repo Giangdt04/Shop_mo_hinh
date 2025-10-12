@@ -35,12 +35,12 @@ public class VnpayService {
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderInfo", orderInfo);
         vnp_Params.put("vnp_OrderType", orderType);
-        vnp_Params.put("vnp_BankCode", "NCB");
+//        vnp_Params.put("vnp_BankCode", "NCB");
 
         String locate = "vn";
         vnp_Params.put("vnp_Locale", locate);
 
-        String vnp_ReturnUrl = "http://localhost:4200/order-success";
+        String vnp_ReturnUrl = "http://localhost:4200/vnpay-return";
         vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
