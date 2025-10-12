@@ -8,12 +8,15 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import static com.example.shopmohinh.constant.RedisKey.*;
 
 @Slf4j
 @Service
@@ -58,8 +61,8 @@ public class RealTimeConsumer {
             return;
         }
 
-        String sessionViewKey = "viewed:" + sessionId + ":" + productId;
-        String productViewKey = "product:view:" + productId;
+        String sessionViewKey = SESSION_VIEW_KEY + sessionId + ":" + productId;
+        String productViewKey = PRODUCT_VIEW_KEY + productId;
 
         boolean alreadyViewed = Boolean.TRUE.equals(redisTemplate.hasKey(sessionViewKey));
 
@@ -98,8 +101,8 @@ public class RealTimeConsumer {
             return;
         }
 
-        String sessionSearchKey = "searched:" + sessionId + ":" + keyword;
-        String keywordSearchKey = "keyword:search:" + keyword;
+        String sessionSearchKey = SESSION_SEARCH_KEY + sessionId + ":" + keyword;
+        String keywordSearchKey = PRODUCT_SEARCH_KEY + keyword;
 
         boolean alreadySearched = Boolean.TRUE.equals(redisTemplate.hasKey(sessionSearchKey));
 
