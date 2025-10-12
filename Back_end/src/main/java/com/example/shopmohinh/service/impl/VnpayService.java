@@ -40,7 +40,7 @@ public class VnpayService {
         String locate = "vn";
         vnp_Params.put("vnp_Locale", locate);
 
-        String vnp_ReturnUrl = "http://localhost:8080/identity/payment/vnpay-payment";
+        String vnp_ReturnUrl = "http://localhost:4200/order-success";
         vnp_Params.put("vnp_ReturnUrl", vnp_ReturnUrl);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 

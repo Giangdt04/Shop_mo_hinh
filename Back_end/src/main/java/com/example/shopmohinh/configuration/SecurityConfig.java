@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/users/register").permitAll()
+                                .requestMatchers("/momo/**").permitAll()
                                 .requestMatchers("/permissions/**").permitAll()
                                 .requestMatchers("/payment/**").permitAll()
                                 .requestMatchers("/ghn/**").permitAll()
