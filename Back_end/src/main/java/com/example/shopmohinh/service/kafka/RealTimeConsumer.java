@@ -1,6 +1,6 @@
 package com.example.shopmohinh.service.kafka;
 
-import com.example.shopmohinh.constant.ActionTypeContant;
+import com.example.shopmohinh.constant.ActionTypeConstant;
 import com.example.shopmohinh.dto.response.ProductEventResponse;
 import com.example.shopmohinh.service.websocket.SocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_SEARCH;
+import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_VIEW;
 import static com.example.shopmohinh.constant.RedisKey.*;
 
 @Slf4j
@@ -66,7 +67,7 @@ public class RealTimeConsumer {
 
         boolean alreadyViewed = Boolean.TRUE.equals(redisTemplate.hasKey(sessionViewKey));
 
-        if (ActionTypeContant.TYPE_VIEW.equals(event.getActionType())) {
+        if (event.getActionType() == TYPE_VIEW.getValue()) {
             if (!alreadyViewed) {
                 // chỉ đánh dấu đã xem, không set expire
                 redisTemplate.opsForValue().increment(productViewKey);
@@ -106,7 +107,7 @@ public class RealTimeConsumer {
 
         boolean alreadySearched = Boolean.TRUE.equals(redisTemplate.hasKey(sessionSearchKey));
 
-        if (ActionTypeContant.TYPE_SEARCH.equals(event.getActionType())) {
+        if (event.getActionType() == TYPE_SEARCH.getValue()) {
             if (!alreadySearched) {
                 redisTemplate.opsForValue().increment(keywordSearchKey);
                 redisTemplate.opsForValue().set(sessionSearchKey, "true", 1, TimeUnit.SECONDS);

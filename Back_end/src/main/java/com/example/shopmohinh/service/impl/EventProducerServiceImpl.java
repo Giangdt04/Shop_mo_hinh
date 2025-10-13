@@ -1,6 +1,6 @@
 package com.example.shopmohinh.service.impl;
 
-import com.example.shopmohinh.constant.ActionTypeContant;
+import com.example.shopmohinh.constant.ActionTypeConstant;
 import com.example.shopmohinh.dto.request.ProductEventRequest;
 import com.example.shopmohinh.dto.response.ProductEventResponse;
 import com.example.shopmohinh.mapper.ProductEventMapper;
@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.concurrent.Executor;
 
+import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_VIEW;
 import static com.example.shopmohinh.util.ClientIpUtils.getClientIp;
 
 @Slf4j
@@ -55,7 +56,7 @@ public class EventProducerServiceImpl implements EventProducerService {
             if (message == null && message.isEmpty()) return;
             int partition;
 
-            if (object.getActionType().equals(ActionTypeContant.TYPE_SEARCH)) {
+            if (object.getActionType() == TYPE_VIEW.getValue()) {
                 String keyword = object.getKeyword();
                 if (keyword == null || keyword.isEmpty()) {
                     partition = 0;

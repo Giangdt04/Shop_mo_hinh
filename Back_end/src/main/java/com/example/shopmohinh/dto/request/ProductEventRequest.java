@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductEventRequest {
     private Long productId;
-    private String actionType;
+    private int actionType;
     private String keyword;
 }

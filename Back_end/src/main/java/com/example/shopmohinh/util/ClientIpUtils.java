@@ -8,7 +8,6 @@ import java.net.UnknownHostException;
 public class ClientIpUtils {
     public static String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
-
         if (ip != null && !ip.isEmpty()) {
             // Nếu đi qua nhiều proxy, lấy IP đầu tiên
             ip = ip.split(",")[0].trim();

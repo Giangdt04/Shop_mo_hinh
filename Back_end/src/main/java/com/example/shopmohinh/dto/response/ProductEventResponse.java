@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class ProductEventResponse {
     private Long productId;
     private String sessionId;
-    private String actionType; // "VIEW" | "SEARCH"
+    private int actionType; // "VIEW" | "SEARCH"
     private String keyword; // dùng khi actionType = "SEARCH"
     private LocalDateTime timestamp ;
 }
