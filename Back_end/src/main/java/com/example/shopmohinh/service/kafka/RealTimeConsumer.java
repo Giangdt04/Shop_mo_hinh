@@ -1,6 +1,5 @@
 package com.example.shopmohinh.service.kafka;
 
-import com.example.shopmohinh.constant.ActionTypeConstant;
 import com.example.shopmohinh.dto.response.ProductEventResponse;
 import com.example.shopmohinh.service.websocket.SocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +11,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_SEARCH;
@@ -28,7 +30,6 @@ public class RealTimeConsumer {
     ObjectMapper objectMapper;
     SocketHandler socketHandler;
 
-    // === Lắng nghe sự kiện xem sản phẩm ===
     @KafkaListener(topics = "product-view-events", groupId = "real_time_group")
     public void listenView(String message) {
         try {
@@ -40,7 +41,6 @@ public class RealTimeConsumer {
         }
     }
 
-    // === Lắng nghe sự kiện tìm kiếm sản phẩm ===
     @KafkaListener(topics = "product-search-events", groupId = "real_time_group")
     public void listenSearch(String message) {
         try {
@@ -52,7 +52,6 @@ public class RealTimeConsumer {
         }
     }
 
-    // === Xử lý sự kiện xem sản phẩm ===
     private void handleViewEvent(ProductEventResponse event) {
         Long productId = event.getProductId();
         String sessionId = event.getSessionId();
@@ -71,6 +70,7 @@ public class RealTimeConsumer {
             if (!alreadyViewed) {
                 // chỉ đánh dấu đã xem, không set expire
                 redisTemplate.opsForValue().increment(productViewKey);
+                redisTemplate.opsForZSet().incrementScore(TOP_PRODUCT_VIEWS, String.valueOf(event.getProductId()), 1);
                 redisTemplate.opsForValue().set(sessionViewKey, "true", 1, TimeUnit.NANOSECONDS);
                 log.info(" Counted new view for product {} this session", productId, sessionId);
             } else {
@@ -86,9 +86,10 @@ public class RealTimeConsumer {
                 "viewCount", count != null ? count : "0"
         );
         socketHandler.broadcast("updateProductView", data);
+
+        this.sendTop10Products();
     }
 
-    // === Xử lý sự kiện tìm kiếm ===
     private void handleSearchEvent(ProductEventResponse event) {
         String keyword = event.getKeyword();
         String sessionId = event.getSessionId();
@@ -103,13 +104,14 @@ public class RealTimeConsumer {
         }
 
         String sessionSearchKey = SESSION_SEARCH_KEY + sessionId + ":" + keyword;
-        String keywordSearchKey = PRODUCT_SEARCH_KEY + keyword;
+        String keywordSearchKey = KEYWORD_SEARCH_KEY + keyword;
 
         boolean alreadySearched = Boolean.TRUE.equals(redisTemplate.hasKey(sessionSearchKey));
 
         if (event.getActionType() == TYPE_SEARCH.getValue()) {
             if (!alreadySearched) {
                 redisTemplate.opsForValue().increment(keywordSearchKey);
+                redisTemplate.opsForZSet().incrementScore(TOP_KEYWORD_SEARCH, String.valueOf(event.getKeyword()), 1);
                 redisTemplate.opsForValue().set(sessionSearchKey, "true", 1, TimeUnit.SECONDS);
                 log.info(" Counted new search for keyword '{}' (session={})", keyword, sessionId);
             } else {
@@ -125,5 +127,36 @@ public class RealTimeConsumer {
                 "keywordCount", count != null ? count : "0"
         );
         socketHandler.broadcast("updateKeywordSearch", data);
+
+        this.sendTop10Keywords();
+    }
+
+    private void sendTop10Products() {
+//      ZSet (sorted set)
+        var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_PRODUCT_VIEWS, 0, 9);
+        if (top10 == null || top10.isEmpty()) return;
+
+        List<Map<String, Object>> list = top10.stream().map(e -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("productId", e.getValue());
+            map.put("viewCount", Objects.requireNonNull(e.getScore()).longValue());
+            return map;
+        }).toList();
+
+        socketHandler.broadcast("updateTop10Products", list);
+    }
+
+    private void sendTop10Keywords() {
+        var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_KEYWORD_SEARCH, 0, 9);
+        if (top10 == null || top10.isEmpty()) return;
+
+        List<Map<String, Object>> list = top10.stream().map(e -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("keyword", e.getValue());
+            map.put("searchCount", Objects.requireNonNull(e.getScore()).longValue());
+            return map;
+        }).toList();
+
+        socketHandler.broadcast("updateTop10Keywords", list);
     }
 }

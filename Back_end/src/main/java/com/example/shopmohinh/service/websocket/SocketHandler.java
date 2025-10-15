@@ -48,9 +48,6 @@ public class SocketHandler {
         log.info("Client disconnected: {}", client.getSessionId());
     }
 
-    /**
-     * Gửi dữ liệu realtime (view count, trending keyword, top product, ...)
-     */
     public void broadcast(String event, Object data) {
         for (SocketIOClient client : clients.values()) {
             client.sendEvent(event, data);

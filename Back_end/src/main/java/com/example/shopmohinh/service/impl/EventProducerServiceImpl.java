@@ -1,6 +1,5 @@
 package com.example.shopmohinh.service.impl;
 
-import com.example.shopmohinh.constant.ActionTypeConstant;
 import com.example.shopmohinh.dto.request.ProductEventRequest;
 import com.example.shopmohinh.dto.response.ProductEventResponse;
 import com.example.shopmohinh.mapper.ProductEventMapper;
@@ -29,9 +28,7 @@ import static com.example.shopmohinh.util.ClientIpUtils.getClientIp;
 public class EventProducerServiceImpl implements EventProducerService {
     ProductEventMapper productEventMapper;
 
-    @Autowired
-    @Qualifier("taskExecutor")
-    private Executor executor;
+    Executor executor;
 
     KafkaTemplate<String, String> kafkaTemplate;
 
