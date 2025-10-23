@@ -1,12 +1,16 @@
 package com.example.shopmohinh.service.kafka;
 
+import com.corundumstudio.socketio.SocketIOClient;
 import com.example.shopmohinh.dto.response.ProductEventResponse;
+import com.example.shopmohinh.dto.response.Top10KeywordsUpdateEvent;
+import com.example.shopmohinh.dto.response.Top10ProductsUpdateEvent;
 import com.example.shopmohinh.service.websocket.SocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_SEARCH;
 import static com.example.shopmohinh.constant.ActionTypeConstant.TYPE_VIEW;
 import static com.example.shopmohinh.constant.RedisKey.*;
+import static com.example.shopmohinh.constant.RedisKey.TOP_KEYWORD_SEARCH;
 
 @Slf4j
 @Service
@@ -28,7 +33,7 @@ import static com.example.shopmohinh.constant.RedisKey.*;
 public class RealTimeConsumer {
     StringRedisTemplate redisTemplate;
     ObjectMapper objectMapper;
-    SocketHandler socketHandler;
+    ApplicationEventPublisher publisher;
 
     @KafkaListener(topics = "product-view-events", groupId = "real_time_group")
     public void listenView(String message) {
@@ -81,12 +86,6 @@ public class RealTimeConsumer {
         String count = redisTemplate.opsForValue().get(productViewKey);
         log.info(" Product [{}] total views = {}", productId, count);
 
-        Map<String, Object> data = Map.of(
-                "productId", productId,
-                "viewCount", count != null ? count : "0"
-        );
-        socketHandler.broadcast("updateProductView", data);
-
         this.sendTop10Products();
     }
 
@@ -94,7 +93,7 @@ public class RealTimeConsumer {
         String keyword = event.getKeyword();
         String sessionId = event.getSessionId();
 
-        if (keyword == null || keyword.isBlank()) {
+        if (keyword.isBlank()) {
             log.warn("️ Missing keyword → skip search count (session={})", sessionId);
             return;
         }
@@ -122,16 +121,10 @@ public class RealTimeConsumer {
         String count = redisTemplate.opsForValue().get(keywordSearchKey);
         log.info(" Keyword [{}] total searches = {}", keyword, count);
 
-        Map<String, Object> data = Map.of(
-                "keyword", keyword,
-                "keywordCount", count != null ? count : "0"
-        );
-        socketHandler.broadcast("updateKeywordSearch", data);
-
         this.sendTop10Keywords();
     }
 
-    private void sendTop10Products() {
+    public void sendTop10Products() {
 //      ZSet (sorted set)
         var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_PRODUCT_VIEWS, 0, 9);
         if (top10 == null || top10.isEmpty()) return;
@@ -142,11 +135,11 @@ public class RealTimeConsumer {
             map.put("viewCount", Objects.requireNonNull(e.getScore()).longValue());
             return map;
         }).toList();
+        publisher.publishEvent(new Top10ProductsUpdateEvent(this, list));
 
-        socketHandler.broadcast("updateTop10Products", list);
     }
 
-    private void sendTop10Keywords() {
+    public void sendTop10Keywords() {
         var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_KEYWORD_SEARCH, 0, 9);
         if (top10 == null || top10.isEmpty()) return;
 
@@ -156,7 +149,31 @@ public class RealTimeConsumer {
             map.put("searchCount", Objects.requireNonNull(e.getScore()).longValue());
             return map;
         }).toList();
-
-        socketHandler.broadcast("updateTop10Keywords", list);
+        publisher.publishEvent(new Top10KeywordsUpdateEvent(this, list));
     }
+
+    public List<Map<String,Object>> getTop10ProductsList() {
+        var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_PRODUCT_VIEWS, 0, 9);
+        if (top10 == null || top10.isEmpty()) return List.of();
+
+        return top10.stream().map(e -> {
+            Map<String,Object> map = new HashMap<>();
+            map.put("productId", e.getValue());
+            map.put("viewCount", Objects.requireNonNull(e.getScore()).longValue());
+            return map;
+        }).toList();
+    }
+
+    public List<Map<String,Object>> getTop10keywordsList() {
+        var top10 = redisTemplate.opsForZSet().reverseRangeWithScores(TOP_KEYWORD_SEARCH, 0, 9);
+        if (top10 == null || top10.isEmpty()) return List.of();
+
+        return top10.stream().map(e -> {
+            Map<String,Object> map = new HashMap<>();
+            map.put("keyword", e.getValue());
+            map.put("searchCount", Objects.requireNonNull(e.getScore()).longValue());
+            return map;
+        }).toList();
+    }
+
 }

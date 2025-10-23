@@ -39,6 +39,8 @@ public class SecurityConfig {
                         request
                                 .requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/product/autocomplete").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/product//search-history").permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, "/users/register").permitAll()
                                 .requestMatchers("/permissions/**").permitAll()
                                 .requestMatchers("/payment/**").permitAll()

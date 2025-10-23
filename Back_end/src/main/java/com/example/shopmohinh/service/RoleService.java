@@ -1,7 +1,6 @@
 package com.example.shopmohinh.service;
 
 import com.example.shopmohinh.dto.request.RoleRequest;
-import com.example.shopmohinh.dto.request.UserUpdateRequest;
 import com.example.shopmohinh.dto.response.RoleResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.entity.Role;
@@ -10,16 +9,14 @@ import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.RoleMapper;
 import com.example.shopmohinh.mapper.UserMapper;
-import com.example.shopmohinh.repository.PermissionRepository;
-import com.example.shopmohinh.repository.RoleRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.PermissionRepository;
+import com.example.shopmohinh.repository.jpa.RoleRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

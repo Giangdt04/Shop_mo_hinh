@@ -1,7 +1,14 @@
 package com.example.shopmohinh.schedule;
 
+import com.example.shopmohinh.constant.RedisKey;
 import com.example.shopmohinh.entity.HotStatistics;
-import com.example.shopmohinh.repository.HotStatisticsRepository;
+import com.example.shopmohinh.entity.UserProductViewLogEntity;
+import com.example.shopmohinh.repository.jpa.HotStatisticsRepository;
+import com.example.shopmohinh.repository.jpa.UserProductViewLogRepository;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.nimbusds.jose.shaded.gson.JsonSyntaxException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,12 +39,12 @@ public class CombinedScheduleData {
 
     StringRedisTemplate redisTemplate;
 
-//     Tiến trình này sẽ chạy mỗi 12 tiếng 1 lần
+    UserProductViewLogRepository userProductViewLogRepository;
+
 //     Cron: "0 0 */12 * * ?" → 0 phút, 0 giây, mỗi 12 tiếng 1 lần
     @Scheduled(cron = "0 0 */12 * * ?")
-//    @Scheduled(cron = "0 */1 * * * ?") //test every minute
     public void syncTopDataToDatabase() {
-        log.info("=== Bắt đầu tiến trình đồng bộ top dữ liệu từ Redis sang MySQL ===");
+        log.info("Bắt đầu tiến trình đồng bộ top dữ liệu từ Redis sang MySQL");
 
         try {
             processHotData(PRODUCT_VIEW_KEY + "*", TYPE_VIEW.getValue(), true);
@@ -46,7 +53,7 @@ public class CombinedScheduleData {
             log.error("Lỗi khi đồng bộ dữ liệu hot_statistics: ", e);
         }
 
-        log.info("=== Kết thúc tiến trình đồng bộ ===");
+        log.info("Kết thúc tiến trình đồng bộ");
     }
 
     //clear data cũ hơn 180 ngày vào 3h sáng mỗi đầu tháng
@@ -62,6 +69,46 @@ public class CombinedScheduleData {
             log.error("Lỗi khi xóa dữ liệu cũ hot_statistics", e);
         }
     }
+
+
+    @Scheduled(cron = "0 0/5 * * * *")
+    public void flushProductLogs() {
+        try {
+            Set<String> keys = redisTemplate.keys(RedisKey.PRODUCT_LOG_KEY_PREFIX + "*");
+            if (keys == null || keys.isEmpty()) return;
+
+            // Tạo Gson có TypeAdapter cho LocalDateTime
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
+                            (json, type, context) -> LocalDateTime.parse(json.getAsString()))
+                    .create();
+
+            for (String key : keys) {
+                List<String> items = redisTemplate.opsForList().range(key, 0, -1);
+                if (items == null || items.isEmpty()) continue;
+
+                List<UserProductViewLogEntity> entities = items.stream().map(json -> {
+                    try {
+                        return gson.fromJson(json, UserProductViewLogEntity.class);
+                    } catch (JsonSyntaxException e) {
+                        log.error("Failed to parse Redis JSON: {}", e.getMessage(), e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+
+                if (!entities.isEmpty()) {
+                    userProductViewLogRepository.saveAll(entities);
+                    log.info("Flushed {} product view logs from Redis key {} to DB", entities.size(), key);
+                }
+
+                redisTemplate.delete(key);
+            }
+
+        } catch (Exception e) {
+            log.error("Error flushing product view logs from Redis: {}", e.getMessage(), e);
+        }
+    }
+
 
     private void processHotData(String pattern, int type, boolean isProduct) {
         Set<String> keys = redisTemplate.keys(pattern);

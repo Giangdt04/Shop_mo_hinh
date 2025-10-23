@@ -10,8 +10,8 @@ import com.example.shopmohinh.entity.InvalidatedToken;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
-import com.example.shopmohinh.repository.InvalidatedTokenRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.InvalidatedTokenRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -188,7 +188,7 @@ public class AuthenticationService {
                 //ID của token
                 .jwtID(UUID.randomUUID().toString())
                 //có thể tạo thêm claim custom
-                .claim("user ID", user.getId())
+                .claim("userID", user.getId())
                 //role của user
                 .claim("scope", buildScope(user))
                 .build();

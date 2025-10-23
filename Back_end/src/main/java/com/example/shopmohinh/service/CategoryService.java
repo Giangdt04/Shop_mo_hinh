@@ -1,22 +1,16 @@
 package com.example.shopmohinh.service;
 
 import com.example.shopmohinh.dto.request.CategoryRequest;
-import com.example.shopmohinh.dto.request.PermissionRequest;
-import com.example.shopmohinh.dto.request.RoleRequest;
 import com.example.shopmohinh.dto.response.CategoryResponse;
-import com.example.shopmohinh.dto.response.PermissionResponse;
-import com.example.shopmohinh.dto.response.RoleResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.entity.Category;
-import com.example.shopmohinh.entity.Permission;
-import com.example.shopmohinh.entity.Role;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.CategoryMapper;
 import com.example.shopmohinh.mapper.UserMapper;
-import com.example.shopmohinh.repository.CategoryRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.CategoryRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,14 +20,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
 //Thay thế cho @Autowired
 //@RequiredArgsConstructor sẽ tự động tạo contructor của những method đc khai báo là final
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CategoryService {
     CategoryRepository categoryRepository;
@@ -55,22 +48,22 @@ public class CategoryService {
         return userMapper.toUserResponse(user);
     }
 
-    public List<CategoryResponse> getAll(){
+    public List<CategoryResponse> getAll() {
 
         var category = categoryRepository.getAll();
 
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
 
-    public CategoryResponse create(CategoryRequest request){
+    public CategoryResponse create(CategoryRequest request) {
 
         Category category = categoryMapper.toCategory(request);
 
-        if(categoryRepository.getTop1()==null){
+        if (categoryRepository.getTop1() == null) {
             category.setCode("Cate1");
-        }else{
+        } else {
             String code = categoryRepository.getTop1().getCode();
-            category.setCode(code.substring(0,4)+((Integer.parseInt(code.substring(4)))+1));
+            category.setCode(code.substring(0, 4) + ((Integer.parseInt(code.substring(4))) + 1));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -86,10 +79,10 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(category);
     }
 
-    public CategoryResponse delete(String code){
+    public CategoryResponse delete(String code) {
         Category category = categoryRepository.findByCode(code).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        if(category != null){
+        if (category != null) {
             category.setDeleted(false);
         }
         return categoryMapper.toCategoryResponse(category);
@@ -118,10 +111,12 @@ public class CategoryService {
 
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
+
     public Double getAllTotalPage() {
-        int totalPage=categoryRepository.getAllTotalPage().size();
-        return Math.ceil(totalPage/3.0);
+        int totalPage = categoryRepository.getAllTotalPage().size();
+        return Math.ceil(totalPage / 3.0);
     }
+
     public CategoryResponse findUser(Long id) {
         log.info("In method get category by id");
         return categoryMapper.toCategoryResponse(categoryRepository.findById(id).orElseThrow(
@@ -131,13 +126,13 @@ public class CategoryService {
 
     public List<CategoryResponse> findByAll(String name, String status, Pageable pageable) {
 
-        var category = categoryRepository.findByAll(name,status,pageable);
+        var category = categoryRepository.findByAll(name, status, pageable);
 
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
 
     public List<CategoryResponse> findAllTotalPage(String name, String status) {
-        var category = categoryRepository.findAllTotalPage(name,status);
+        var category = categoryRepository.findAllTotalPage(name, status);
         return category.stream().map(categoryMapper::toCategoryResponse).toList();
     }
 

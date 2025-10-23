@@ -13,7 +13,7 @@ import java.util.*;
 @Service
 public class VnpayService {
 
-    public String createOrder(int total, String orderInfo, String urlReturn){
+    public String createOrder(int total, String orderInfo, String urlReturn) {
 
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
@@ -27,7 +27,7 @@ public class VnpayService {
         vnp_Params.put("vnp_Version", vnp_Version);
         vnp_Params.put("vnp_Command", vnp_Command);
         vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
-        vnp_Params.put("vnp_Amount", String.valueOf(total*100));
+        vnp_Params.put("vnp_Amount", String.valueOf(total * 100));
         vnp_Params.put("vnp_CurrCode", "VND");
 
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
@@ -84,9 +84,9 @@ public class VnpayService {
         return paymentUrl;
     }
 
-    public int orderReturn(HttpServletRequest request){
+    public int orderReturn(HttpServletRequest request) {
         Map fields = new HashMap();
-        for (Enumeration params = request.getParameterNames(); params.hasMoreElements();) {
+        for (Enumeration params = request.getParameterNames(); params.hasMoreElements(); ) {
             String fieldName = null;
             String fieldValue = null;
             try {

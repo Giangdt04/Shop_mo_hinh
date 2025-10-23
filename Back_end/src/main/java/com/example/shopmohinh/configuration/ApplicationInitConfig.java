@@ -1,17 +1,15 @@
 package com.example.shopmohinh.configuration;
 
-import com.example.shopmohinh.dto.request.UserCreationRequest;
 import com.example.shopmohinh.entity.Role;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
-import com.example.shopmohinh.repository.RoleRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.RoleRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

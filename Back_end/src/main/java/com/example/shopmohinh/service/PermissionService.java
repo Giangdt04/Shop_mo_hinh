@@ -9,8 +9,8 @@ import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.PermissionMapper;
 import com.example.shopmohinh.mapper.UserMapper;
-import com.example.shopmohinh.repository.PermissionRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.PermissionRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +25,7 @@ import java.util.List;
 //Thay thế cho @Autowired
 //@RequiredArgsConstructor sẽ tự động tạo contructor của những method đc khai báo là final
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PermissionService {
 
@@ -48,7 +48,7 @@ public class PermissionService {
         return userMapper.toUserResponse(user);
     }
 
-    public PermissionResponse create(PermissionRequest request){
+    public PermissionResponse create(PermissionRequest request) {
         Permission permission = permissionMapper.toPermission(request);
 
         LocalDateTime now = LocalDateTime.now();
@@ -64,13 +64,13 @@ public class PermissionService {
         return permissionMapper.toPermissionResponse(permission);
     }
 
-    public List<PermissionResponse> getPermission(){
+    public List<PermissionResponse> getPermission() {
 
         return permissionRepository.getAll().stream()
                 .map(permissionMapper::toPermissionResponse).toList();
     }
 
-    public PermissionResponse delete(String code){
+    public PermissionResponse delete(String code) {
         Permission permission = permissionRepository.findByCode(code).
                 orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 

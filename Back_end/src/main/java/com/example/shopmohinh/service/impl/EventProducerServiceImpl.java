@@ -10,8 +10,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +63,7 @@ public class EventProducerServiceImpl implements EventProducerService {
                         //Character.getNumericValue(lastChar) chuyển kí tự số '0' - '9 thành số tương ứng'
                         partition = Character.getNumericValue(lastChar) % 3;
 
-                    //Character.isLetter(lastChar) → kiểm tra xem lastChar có phải là chữ cái (a–z, A–Z) hay không.
+                        //Character.isLetter(lastChar) → kiểm tra xem lastChar có phải là chữ cái (a–z, A–Z) hay không.
                     } else if (Character.isLetter(lastChar)) {
                         lastChar = Character.toLowerCase(lastChar);
 

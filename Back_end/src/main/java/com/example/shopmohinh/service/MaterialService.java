@@ -1,19 +1,16 @@
 package com.example.shopmohinh.service;
 
 import com.example.shopmohinh.dto.request.MaterialRequest;
-import com.example.shopmohinh.dto.request.SizeRequest;
 import com.example.shopmohinh.dto.response.MaterialResponse;
-import com.example.shopmohinh.dto.response.SizeResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.entity.MaterialEntity;
-import com.example.shopmohinh.entity.SizeEntity;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.MaterialMapper;
 import com.example.shopmohinh.mapper.UserMapper;
-import com.example.shopmohinh.repository.MaterialRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.MaterialRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -49,19 +46,19 @@ public class MaterialService {
         return userMapper.toUserResponse(user);
     }
 
-    public List<MaterialResponse> getAll(){
+    public List<MaterialResponse> getAll() {
         return materialRepository.findAll().stream()
                 .map(materialMapper::toResponse).toList();
     }
 
-    public MaterialResponse create(MaterialRequest request){
+    public MaterialResponse create(MaterialRequest request) {
         MaterialEntity materialEntity = materialMapper.toEntity(request);
 
-        if(materialRepository.getTop1() == null){
+        if (materialRepository.getTop1() == null) {
             materialEntity.setCode("MT1");
-        }else{
+        } else {
             String code = materialRepository.getTop1().getCode();
-            materialEntity.setCode(code.substring(0,2)+((Integer.parseInt(code.substring(2)))+1));
+            materialEntity.setCode(code.substring(0, 2) + ((Integer.parseInt(code.substring(2))) + 1));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -70,11 +67,11 @@ public class MaterialService {
         return materialMapper.toResponse(materialRepository.save(materialEntity));
     }
 
-    public MaterialResponse delete(String code){
+    public MaterialResponse delete(String code) {
         MaterialEntity materialEntity = materialRepository.findByCode(code)
                 .orElseThrow(() -> new AppException(ErrorCode.MATERIAL_NOT_EXISTED));
 
-        if(materialEntity != null){
+        if (materialEntity != null) {
             materialEntity.setDeleted(false);
         }
 

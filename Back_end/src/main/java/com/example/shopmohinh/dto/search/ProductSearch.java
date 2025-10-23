@@ -21,4 +21,6 @@ public class ProductSearch extends SearchDto {
     Double weight;
 
     BigDecimal price;
+
+    Long userId;
 }

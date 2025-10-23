@@ -1,19 +1,16 @@
 package com.example.shopmohinh.service;
 
 import com.example.shopmohinh.dto.request.BrandRequest;
-import com.example.shopmohinh.dto.request.SizeRequest;
 import com.example.shopmohinh.dto.response.BrandResponse;
-import com.example.shopmohinh.dto.response.SizeResponse;
 import com.example.shopmohinh.dto.response.UserResponse;
 import com.example.shopmohinh.entity.BrandEntity;
-import com.example.shopmohinh.entity.SizeEntity;
 import com.example.shopmohinh.entity.User;
 import com.example.shopmohinh.exception.AppException;
 import com.example.shopmohinh.exception.ErrorCode;
 import com.example.shopmohinh.mapper.BrandMapper;
 import com.example.shopmohinh.mapper.UserMapper;
-import com.example.shopmohinh.repository.BrandRepository;
-import com.example.shopmohinh.repository.UserRepository;
+import com.example.shopmohinh.repository.jpa.BrandRepository;
+import com.example.shopmohinh.repository.jpa.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
